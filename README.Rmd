@@ -15,3 +15,5 @@ Este flujo de trabajo está diseñado para estimar intersecciones y calcular ár
 Una vez establecida la intersección, se procede al cálculo del área total de la intersección entre cada portafolio y cada polígono de estudio, utilizando técnicas de análisis espacial y geoprocesamiento. Además de calcular las áreas, se estima cómo contribuyen las áreas interceptadas a metas o temáticas particulares.
 
 Los resultados de los cálculos de intersección y evaluación de aportes se compilan en tablas y gráficos para facilitar la interpretación y el análisis de los datos obtenidos. Este flujo de trabajo también ofrece una alternativa eficiente para resolver consultas rápidas sobre intersecciones de áreas importantes, permitiendo a los usuarios obtener resultados precisos y en poco tiempo para apoyar la toma de decisiones.
+
+Las entradas del script estan almacenadas en [IAvH/Unidades compartidas/BiotabPort_MetasTematicas](https://drive.google.com/open?id=1866NbJpetckt8q3YEOq0nDl9cSe9PZHg&usp=drive_fs).

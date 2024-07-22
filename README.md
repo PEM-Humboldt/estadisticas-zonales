@@ -34,3 +34,6 @@ análisis de los datos obtenidos. Este flujo de trabajo también ofrece
 una alternativa eficiente para resolver consultas rápidas sobre
 intersecciones de áreas importantes, permitiendo a los usuarios obtener
 resultados precisos y en poco tiempo para apoyar la toma de decisiones.
+
+Las entradas del script estan almacenadas en [IAvH/Unidades
+compartidas/BiotabPort_MetasTematicas](https://drive.google.com/open?id=1866NbJpetckt8q3YEOq0nDl9cSe9PZHg&usp=drive_fs).
