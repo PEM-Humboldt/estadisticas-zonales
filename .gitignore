@@ -50,5 +50,6 @@ rsconnect/
 # input and output folders content
 
 **/Datos/*
+**/Resultados/*
 
 
