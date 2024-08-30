@@ -3,7 +3,7 @@ title: # Estadísticas zonales
 author: 
   - name: "Alejandra Narváez Vallejo"
     email: "anarvaez@humboldt.org.co"
-    affiliation: "Gerencia de información cientifica.
+    affiliation: "Gerencia de información cientifica. \n
      Instituto de Investigación de Recursos Biológicos Alexander von Humboldt - IAvH"
 ---
 
