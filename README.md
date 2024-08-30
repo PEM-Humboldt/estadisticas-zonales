@@ -4,12 +4,6 @@ author:
   - name: "Alejandra Narváez Vallejo"
     email: "anarvaez@humboldt.org.co"
     affiliation: "Gerencia de información cientifica. Instituto de Investigación de Recursos Biológicos Alexander von Humboldt - IAvH"
-output: 
-  github_document:
-    md_extension: +gfm_auto_identifiers
-    preserve_yaml: true
-    toc: true
-    toc_depth: 6
 ---
 
 Estadísticas zonales
