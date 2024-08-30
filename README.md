@@ -11,6 +11,10 @@ output:
     toc: true
     toc_depth: 6
 ---
+
+Estadísticas zonales
+================
+true
 Este flujo de trabajo está diseñado para calcular estadísticas de indicadores de ecosistemas para regiones específicas por medio de intersecciones. El código interseca las áreas de interés con los rasters de los indicadores, y calcula estadísticas zonales (promedio, valores, minimos, máximos, moda, etc)
 
 Los resultados de los cálculos zonales y se compilan en tablas y gráficos para facilitar la interpretación y el análisis de los datos obtenidos. 
