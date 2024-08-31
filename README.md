@@ -12,3 +12,9 @@ true
 Este flujo de trabajo está diseñado para calcular estadísticas de indicadores de ecosistemas para regiones específicas por medio de intersecciones. El código interseca las áreas de interés con los rasters de los indicadores, y calcula estadísticas zonales (promedio, valores, minimos, máximos, moda, etc)
 
 Los resultados de los cálculos zonales y se compilan en tablas y gráficos para facilitar la interpretación y el análisis de los datos obtenidos. 
+
+
+- [Organizar directorio de trabajo](#organizar-directorio-de-trabajo)
+- [Establecer parámetros de sesión](#establecer-parámetros-de-sesión)
+  - [Cargar librerias/paquetes necesarios para el
+    análisis](#cargar-libreriaspaquetes-necesarios-para-el-análisis)
