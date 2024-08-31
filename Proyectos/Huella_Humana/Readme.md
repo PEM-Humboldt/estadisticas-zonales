@@ -13,12 +13,6 @@ En la última sección del código las tablas se organizan para su exportación 
 Proporciona información sobre cómo los cambios en la presión y el impacto de las actividades humanas están ejerciendo presión sobre la
 biodiversidad en estas áreas. 
 
-
-- [Organizar directorio de trabajo](#organizar-directorio-de-trabajo)
-- [Establecer parámetros de sesión](#establecer-parámetros-de-sesión)
-  - [Cargar librerias/paquetes necesarios para el
-    análisis](#cargar-libreriaspaquetes-necesarios-para-el-análisis)
-
 ## Organizar directorio de trabajo
 
 <a id="ID_seccion1"></a>
