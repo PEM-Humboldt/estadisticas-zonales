@@ -52,5 +52,6 @@ rsconnect/
 **/Datos/*
 !**/Datos/.gitkeep
 **/Resultados/*
+!**/Resultados/.gitkeep
 
 
