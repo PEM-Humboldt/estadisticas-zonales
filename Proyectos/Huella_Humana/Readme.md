@@ -1,24 +1,16 @@
 Flujo de trabajo VariationHumanFootprintSpecialAreas – Indicador de
 Variación en la huella humana en áreas de manejo especial en Colombia
 ================
+En este código se realiz un análisis multitemporal (1970, 1990, 2000, 2015, 2018) de la huella espacial humana por municipios en la altillanura colombiana. 
+Se calculan estadísticas zonales (promedio, mediana, desviación estándar) de los valores de huella y estadisticos zonales para obtener la frecuencias de categorias de intensidad de  IHEH. La categorización de IHEH tambien se efectúa en el código 
 
-Esta rutina está diseñada para estimar el Indicador de Variación en la
-huella humana en áreas de manejo especial en Colombia. Esto refleja
-información sobre los cambios en la presión y el impacto de las
-actividades humanas en zonas que, aunque no están diseñadas para la
-conservación de la biodiversidad, son gestionadas con el propósito de
-asegurar el bienestar de las comunidades locales. Las áreas de manejo
-especial tienen como objetivo principal mejorar la calidad de vida de
-las comunidades que las habitan. Sin embargo, el bienestar de estas
-comunidades está estrechamente vinculado a la salud y diversidad del
-entorno natural que las rodea.
+Los resultados se guardan en dos data frames:
 
-Proporciona información sobre cómo los cambios en la presión y el
-impacto de las actividades humanas están ejerciendo presión sobre la
-biodiversidad en estas áreas. Al hacerlo, se puede entender mejor cómo
-estas presiones afectan la capacidad del entorno para continuar
-brindando los servicios necesarios para el bienestar de las comunidades
-locales.
+Stat_values: Contiene estadísticas zonales (promedio, mediana, desviación estándar) para cada departamento y año .
+Stat_reclass: Contiene la frecuencia y porcentaje de categorías de reclasificación para cada departamento y año.
+
+Proporciona información sobre cómo los cambios en la presión y el impacto de las actividades humanas están ejerciendo presión sobre la
+biodiversidad en estas áreas. 
 
 - [Organizar directorio de trabajo](#organizar-directorio-de-trabajo)
 - [Establecer parámetros de sesión](#establecer-parámetros-de-sesión)
