@@ -14,7 +14,6 @@ Este flujo de trabajo está diseñado para calcular estadísticas de indicadores
 Los resultados de los cálculos zonales y se compilan en tablas y gráficos para facilitar la interpretación y el análisis de los datos obtenidos. 
 
 
-- [Organizar directorio de trabajo](#organizar-directorio-de-trabajo)
-- [Establecer parámetros de sesión](#establecer-parámetros-de-sesión)
-  - [Cargar librerias/paquetes necesarios para el
-    análisis](#cargar-libreriaspaquetes-necesarios-para-el-análisis)
+- [Análisis multitemporal de la huella espacial humana](#organizar-directorio-de-trabajo)
+- [Análisis departmental de la integridad forestal]
+  
