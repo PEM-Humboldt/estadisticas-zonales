@@ -50,6 +50,7 @@ rsconnect/
 # input and output folders content
 
 **/Datos/*
+!**Datos/.gitkeep
 **/Resultados/*
 
 
