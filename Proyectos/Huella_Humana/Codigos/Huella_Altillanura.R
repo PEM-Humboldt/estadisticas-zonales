@@ -37,7 +37,7 @@ library(htmlwidgets)
 #**********************************************************
 # Definir directorio(s) de trabajo -----------------------
 #**********************************************************
-here::i_am(path="Código/Huella_Altillanura.R")
+here::i_am(path="Codigos/Huella_Altillanura.R")
 
 dir_Datos_Or <- here::here("Datos", "Originales")
 dir_Datos_Intm <- here::here("Datos", "Intermedios")
