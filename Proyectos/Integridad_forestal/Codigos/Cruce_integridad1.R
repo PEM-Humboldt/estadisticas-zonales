@@ -13,6 +13,7 @@
 # Mejorar la consulta de si el raster solo tiene NaN
 # falta la parte donde se extraer la información para boxplots usar list_rasters
 # Diseñar la rtabla comparativa
+ # revisar que todos loa paquetesw se usen
 
 
 
@@ -35,6 +36,11 @@ library(DT)
 #**********************************************************
 # Definir directorio(s) de trabajo -----------------------
 #**********************************************************
+
+here::i_am(path="Codigos/Cruce_integridad1.R")
+
+
+
 
 dir_Datos_Or<- here::here("Datos", "Originales")
 dir_Datos_Intm<- here::here("Datos","Intermedios")
