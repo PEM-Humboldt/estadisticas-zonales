@@ -49,16 +49,14 @@ rsconnect/
 
 # input and output folders content
 
-**/Datos/*
-!**/Datos/.gitkeep
-
 # Ignorar todo el contenido dentro de 'Originales' y 'Intermedios'
 
 **/Datos/Originales/*
 **/Datos/Intermedios/*
 
 # No ignorar los archivos .gitkeep dentro de 'Originales' y 'Intermedios'
-!**/.gitkeep
+!**/Datos/Originales/.gitkeep
+!**/Datos/Intermedios/.gitkeep
 
 **/Resultados/*
 !**/Resultados/.gitkeep
