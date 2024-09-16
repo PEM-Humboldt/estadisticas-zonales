@@ -6,10 +6,9 @@
 # 
 # Por hacer o  corregir: 
 
-## Vaerguar sobre Roxygen para la documentción de funciones
-# Documentar las funciones
-## Completar funciones con ROxygen
+
 # paralelizar y usar clusters
+# descripcion de la rutina
 # Mejorar la consulta de si el raster solo tiene NaN
 # falta la parte donde se extraer la información para boxplots usar list_rasters
 # Diseñar la rtabla comparativa
@@ -31,26 +30,27 @@ library(formattable)
 library(readr)
 library(tidyr)
 library(DT)
+library(htmlwidgets)
 
 
 #**********************************************************
 # Definir directorio(s) de trabajo -----------------------
 #**********************************************************
 
-here::i_am(path="Codigos/Cruce_integridad1.R")
+setwd(file.path(this.path::this.path(),"..",".."))
 
+dir_Datos_Or<- file.path("Datos", "Originales")
+dir_Datos_Intm<- file.path("Datos","Intermedios")
+dir_Resultados<- file.path ("Resultados")
 
-
-
-dir_Datos_Or<- here::here("Datos", "Originales")
-dir_Datos_Intm<- here::here("Datos","Intermedios")
-dir_Resultados<- here::here("Resultados")
 
 #**********************************************************
 # Cargar funciones ----------------------------
 #**********************************************************
 
-source(here::here("Código", "Funciones.R"))
+source(file.path("..", "..", "Funciones_comunes" , "estadísticas.R"))
+source(file.path("..", "..", "Funciones_comunes" , "preprocesamiento.R"))
+source(file.path("..", "..", "Funciones_comunes" , "visualización.R"))
 
 
 #**********************************************************
@@ -71,34 +71,69 @@ capas_files<-list.files(dir_Datos_Or, recursive=T, pattern= "shp$", full.names =
 
 capas_st<-lapply(capas_files[1:4],CargarProyectar)
 
-capas_st[[5]]<- st_read(capas_files[[5]])
+capas_st[[5]]<- st_read(capas_files[[5]])# reservas campesinas e cargo por separado porque presentaba problemas de proyección
 
 names(capas_st)<-nombre_capas
 
 
 # Capas raster
-# integridad
 
-Intg<-rast( file.path(dir_Datos_Intm,"Integrida309377.tif"))
-
-# raster base
-
-r_base<-rast( file.path(dir_Datos_Intm,"rbase_30_noSA.tif"))
+Intg0<-rast(file.path(dir_Datos_Or, "Integridad ecologica NASA", "Integrity_inde_x100.tif"))
 
 
 #**********************************************************
 # Preparar datos ----------------------------
 #**********************************************************
 
-# Integridad que ignore los valores 0, que es zona de no bosquepotencial  según compación con la capa de mapbiomas
+## Integridad
+
+# proyectar raster ---
+
+# se verifica si los raster ya existen , de lo contrario se generan y guardan
+
+# Ruta del archivo raster
+
+raster_paths <- paste0(dir_Datos_Intm, "/", "Integridad9377", ".tif ")
+
+path_base <- paste0(dir_Datos_Intm, "/", "rbase_30_noSA", ".tif ")
+
+
+# creación de raster base
+
+if (file.exists(path_base)) {
+  r_base<-rast( file.path(dir_Datos_Intm,"rbase_30_noSA.tif"))
+} else {
+r_base<- rast(xmin=4330516, ymin= 1090467, xmax= 5684465, ymax= 2935222,  crs="EPSG:9377", res=30)
+values(r_base)<-1
+
+}
+
+# Proyectar integridad
+
+if (file.exists(raster_paths)) {
+  Intg <- rast(raster_paths)
+} else {
+  # Si el raster no existe, rasterizar y guardar el resultado
+  Intg <-  terra::project(Ing0,r_base,
+              filename = raster_paths)
+  
+}
+
+names( Intg)<- "Integridad"
+
+# Sólo zona de bosque potencial 
+# Integridad valores 0 son NA, que es zona de no bosque potencial  según compación con la capa de mapbiomas
 
 Intg_0<- Intg
 Intg_0[Intg==0]<- NA 
 
 
-# Rasterizar capas vectoriales ####
+## Capas vectoriales ####
+
+# Rasterizar 
 
 # Ruta del archivo raster
+
 raster_paths <- paste0(dir_Datos_Intm,"/",nombre_capas,".tif ")
 
 
@@ -113,10 +148,7 @@ capas_st$Resguardos$id_RI <- as.numeric(factor(capas_st$Resguardos$NOMBRE_RES))
 capas_st$RCampesinas$id_RC <- as.numeric(factor(capas_st$RCampesinas$Nombre))
 
 
-
-
 # atributos a usar para rasterizar
-
 
 atributo_rast<- c("dpto_ccdgo",
                   "id_pnn",
@@ -136,12 +168,11 @@ cat_rast<- c("dpto_cnmbr",
 
 raster_capas <-setNames(lapply(seq_along(raster_paths), rasterizar), nombre_capas)
 
-levels(raster_capas$Dep_COL)<- capas_st$Dep_COL[c("dpto_ccdgo", "dpto_cnmbr")]%>%st_drop_geometry()
+levels(raster_capas$Dep_COL)<- capas_st$Dep_COL[c(atributo_rast[1], cat_rast[1])]%>%st_drop_geometry()
 levels(raster_capas$runap)<- capas_st$runap[c(atributo_rast[2], cat_rast[2])]%>%st_drop_geometry()
 levels(raster_capas$CNegras)<- capas_st$CNegras[c(atributo_rast[3], cat_rast[3])]%>%st_drop_geometry()
 levels(raster_capas$Resguardos)<- unique(capas_st$Resguardos[c(atributo_rast[4], cat_rast[4])]%>%st_drop_geometry())
 levels(raster_capas$RCampesinas)<- capas_st$RCampesinas[c(atributo_rast[5], cat_rast[5])]%>%st_drop_geometry()
-
 
 
 # Crear máscara de integridad de zonas no especiales #### 
@@ -184,7 +215,7 @@ i=1
 
 #for ( i in c(1:27,29:length(list_deptos))){
 
-for ( i in 1:5){  
+for ( i in 1:3){  
   
   
   Nombre_dept<- list_deptos[[i]]$dpto_cnmbr
@@ -210,7 +241,7 @@ for ( i in 1:5){
   df_resguardos<-rbind(df_resguardos,C_ZM[[3]][[1]])
   df_campesino<-rbind(df_campesino,C_ZM[[4]][[1]])
   
-  # calcular estatisticas globales por departamentos ####
+  # calcular estadísticas globales por departamentos ####
   
   # construcción de contenedor raster 
   # llenado con Stack de los rasters para cada zona especial 
@@ -232,7 +263,8 @@ for ( i in 1:5){
   
   # Crear el box plot ####
   
-  png(filename=paste0("Resultados/Gráficas Departamentos/",Nombre_dept), width=555)
+  
+  png(filename=paste0(dir_Resultados,"/Gráficas Departamentos/",Nombre_dept), width=555)
   
   boxplot(list_rasters[[i]])
   
@@ -245,229 +277,49 @@ for ( i in 1:5){
 
 # Guardar la información de las estadísticas zonales
 
-write_excel_csv2(df_runap, paste0(dir_Resultados,"/tablas departamento/", nombre_capas[2],".csv"))
-write_excel_csv2(df_negros, paste0(dir_Resultados,"/tablas departamento/", nombre_capas[3],".csv"))
-write_excel_csv2(df_resguardos, paste0(dir_Resultados,"/tablas departamento/", nombre_capas[4],".csv"))
-write_excel_csv2(df_campesino, paste0(dir_Resultados,"/tablas departamento/", nombre_capas[5],".csv"))
+l_tablas<- list(df_runap,df_negros,df_resguardos,df_campesino)
+names(l_tablas)<- nombre_capas[2:5]
 
 
-datatable(df_runap, 
-          options = list(pageLength = 35 , 
-                         paging=T,        
-                         language = list( search = "Buscar:",
-                                          lengthMenu = "Mostrar _MENU_ entradas"))) 
+GuardarTablas<-function(x){
 
+  write_excel_csv2(l_tablas[[x]], paste0(dir_Resultados,"/tablas departamento/", names(l_tablas)[x],".csv"))
 
+  t_html<-datatable(l_tablas[[x]], 
+            options = list(pageLength = 35 , 
+                           paging=T,        
+                           language = list( search = "Buscar:",
+                                            lengthMenu = "Mostrar _MENU_ entradas"))) 
+  
+  
+  saveWidget(t_html, file = paste0(dir_Resultados,"/tablas departamento/",names(l_tablas)[x] ,".html"))
+  
+}
 
-
+lapply(seq_along(l_tablas),GuardarTablas)
 
 # Guardar la información de las estadísticas deapartamentales
+
 df_global<-df_global[,c(5,1:4)]
 row.names(df_global)<-NULL
+
 write_excel_csv2(df_global, paste0(dir_Resultados,"/tablas_Col_def/Especiales_Stats.csv"))
 
 
-datatable(df_global, 
+t_html<-datatable(df_global, 
           options = list(pageLength = 35 , 
                          paging=T,        
                          language = list( search = "Buscar:",
                                           lengthMenu = "Mostrar _MENU_ entradas")))  %>%
   formatRound(3:5, 2)
 
+saveWidget(t_html, file = paste0(dir_Resultados,"/tablas departamento/",names(l_tablas)[x] ,".html"))))##
+
 
 
 
 list_rasters
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## extraer la información para box plots
-
-i=20
-raster_list<- list_ex
-
-
-raster_values <- data.frame()
-areas_con<-data.frame()
-
-for (i in c(1:27,29: length(raster_list))){
-#for (i in c(21:27,29: length(raster_list))){
-
-if( !all(is.na(values(raster_list[[i]])))){
-  print(i)
-  dpto<- as.factor(names(raster_list)[i])
-  valores<- values(raster_list[[i]], na.rm = TRUE)
-  area_ha <- round(length(valores)* 0.09 ) # area en hectareas
-  
-  temp_df <- data.frame(Value = valores[valores>0], # solo los valores mayores a 0
-                        Dpto = dpto)
-  
-  temp_area<- data.frame(Dpto = dpto, area_ha)
-  
-  # Agregar los valores al data frame principal
-  raster_values <- rbind(raster_values, temp_df)
-  areas_con<- rbind(areas_con, temp_area)
-  
-  gc()
-}
-  cat(i, " vacios")
-  gc()
-}
-
-
-saveRDS(raster_values,file= "Resultados/tablas_Col/exC_valores")
-write_csv2(raster_values,file= "Resultados/tablas_Col/exC_valores.csv")
-
-write_csv2(areas_con, file= "Resultados/tablas_Col/exC_areas.csv")
-saveRDS(areas_con,file= "Resultados/tablas_Col/exC_area")
-
-
-# Preparación de tabla resumen
-
-raster_values<-readRDS("Resultados/tablas_Col/ex_valores")
-
-
-rm( list=ls()[-(28)])
-
-raster_values0<-dplyr::filter(raster_values, Dpto %in% c("ANTIOQUIA", "VICHADA"))
-raster_values0<- raster_values %>%
-  group_by(Dpto) %>%
-  sample_frac(0.6)# funciono para resguardos
-raster_values
-
-
-# Crear el box plot
-modelo<- ggplot(raster_values0, aes(y = Dpto, x = Value)) +
-  geom_boxplot(outlier.size=1)+ # , outlier.alpha=.2
-  labs(title = "Box Plots de Integridad forestal en Áreas no especiales ", x = "Integridad forestal", y = "") 
-
-gc()
-modelo
-
-ggsave(file="Resultados/Gráficas/NoEspecialC.png" ,plot=modelo)
-
-saveRDS(modelo, file="Resultados/graf_negras")
-rm(modelo)
-load("Resultados/graf_negras")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#**********************************************************
-# Análisis ----------------------------
-#**********************************************************
-
-
-num_cores<- 5 # numero de nucleos para procesamiento paralelo
-plan(sequential); gc() # limpiar cache
-plan(multisession, workers= num_cores) # lanzar sesiones paralelas
-
-# Ejecucion paralela
-with_progress(result <- {
-  p <- progressor(along= seq_along(names_deptos))
-  
-  result<-future_lapply( names_deptos, function(label_studyarea) {
-  }
-  )
-}
-)
 
 
 

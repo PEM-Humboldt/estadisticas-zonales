@@ -70,9 +70,27 @@ definicionAOI<-function(capa, i){
 #' @export
 #' @examples 
 
+
 listaMascaras <- function(lista, capa) {
   lista[[i]] <- capa
   names(lista)[i] <- Nombre_dept
   return(lista)
 }
+
+
+#' # Rasterizar capas vectoriales y asignar niveles
+
+if (file.exists(raster_paths)) {
+  r_aoi <- rast(raster_paths)
+} else {
+  # Si el raster no existe, rasterizar y guardar el resultado
+  r_aoi <- capas_st %>%
+    rasterize(y = r_base,
+              field = atributo_rast [1],
+              filename = raster_paths)
+  
+}
+
+levels(r_aoi) <- capas_st[c(atributo_rast, cat_rast)] %>% st_drop_geometry()
+
 
