@@ -313,7 +313,7 @@ t_html<-datatable(df_global,
                                           lengthMenu = "Mostrar _MENU_ entradas")))  %>%
   formatRound(3:5, 2)
 
-saveWidget(t_html, file = paste0(dir_Resultados,"/tablas departamento/",names(l_tablas)[x] ,".html")))##
+saveWidget(t_html, file = paste0(dir_Resultados,"/tablas departamento/",names(l_tablas)[x] ,".html"))##
 
 
 
