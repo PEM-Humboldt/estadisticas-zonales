@@ -1,7 +1,13 @@
-# Título: Soy una plantilla
+# Título: IntegridadForestal-AreasEspecial-Departamento
 #
-# Descripción: r
-#
+# Descripción: Calcular estadísticas sobre la integridad forestal a nivel departamental, centrados en áreas especiales.
+
+# En este repositorio se almacenan códigos para saca estadísticas por departamento de la integridad forestal, basado en áreas especiales: comunidades negras,  resguardos indígenas, áreas protegidas, reservas campesinas y áreas no adscritas a ninguna de las anteriores
+# las Salidas son:
+## 1. Boxplots comparativos de las distribuciones de los valores de integridad por tipo de área especial para cada departamento.
+## 2.  En formatos .csv y html para tener tablas interactivas que faciliten la exploración. 
+
+
 # Autor(es): Alejandra Narváez Vallejo
 # 
 # Por hacer o  corregir: 
@@ -11,8 +17,7 @@
 # descripcion de la rutina
 # Mejorar la consulta de si el raster solo tiene NaN
 # falta la parte donde se extraer la información para boxplots usar list_rasters
-# Diseñar la rtabla comparativa
- # revisar que todos loa paquetesw se usen
+# revisar que todos loa paquetesw se usen
 
 
 
