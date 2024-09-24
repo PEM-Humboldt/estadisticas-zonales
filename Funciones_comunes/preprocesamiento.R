@@ -37,7 +37,7 @@ rasterizar<-function(x){
       rasterize(y = r_base, field =atributo_rast [x], filename=raster_paths[x])
     
     # Guardar el raster resultante en un archivo
-      writeRaster(r_capa, raster_paths[x])
+     # writeRaster(r_capa, raster_paths[x])
   }
   
   return(r_capa)
@@ -78,19 +78,19 @@ listaMascaras <- function(lista, capa) {
 }
 
 
-#' # Rasterizar capas vectoriales y asignar niveles
-
-if (file.exists(raster_paths)) {
-  r_aoi <- rast(raster_paths)
-} else {
-  # Si el raster no existe, rasterizar y guardar el resultado
-  r_aoi <- capas_st %>%
-    rasterize(y = r_base,
-              field = atributo_rast [1],
-              filename = raster_paths)
-  
-}
-
-levels(r_aoi) <- capas_st[c(atributo_rast, cat_rast)] %>% st_drop_geometry()
-
-
+#' #' # Rasterizar capas vectoriales y asignar niveles
+#' 
+#' if (file.exists(raster_paths)) {
+#'   r_aoi <- rast(raster_paths)
+#' } else {
+#'   # Si el raster no existe, rasterizar y guardar el resultado
+#'   r_aoi <- capas_st %>%
+#'     rasterize(y = r_base,
+#'               field = atributo_rast [1],
+#'               filename = raster_paths)
+#'   
+#' }
+#' 
+#' levels(r_aoi) <- capas_st[c(atributo_rast, cat_rast)] %>% st_drop_geometry()
+#' 
+#' 
