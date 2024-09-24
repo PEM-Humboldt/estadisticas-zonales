@@ -16,4 +16,5 @@ Los resultados de los cálculos zonales y se compilan en tablas y gráficos para
 
 - [Análisis multitemporal de la huella espacial humana](./Proyectos/Huella_Humana)
 - [Análisis departmental de la integridad forestal](./Proyectos/Integridad_forestal)
+- [Análisis Huella en Sumapaz](./Proyectos/Integridad_forestal)
   
