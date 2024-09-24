@@ -298,7 +298,7 @@ GuardarTablas<-function(x){
 
 lapply(seq_along(l_tablas),GuardarTablas)
 
-# Guardar la información de las estadísticas deapartamentales
+# Guardar la información de las estadísticas departamentales
 
 df_global<-df_global[,c(5,1:4)]
 row.names(df_global)<-NULL
