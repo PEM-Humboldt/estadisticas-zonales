@@ -6,7 +6,7 @@
 #
 # Por hacer o  corregir:
 
-## funciones con variables por defecto
+## requiere que en la parte de los analisis se activen o desactiven líneas de acuerdo a las zonas a análizar. Los objetos a cambiar son  list_deptos y Nombre_dept
 ## El análisis aun mantiene el sistemas de referencia antiguo
 
 
