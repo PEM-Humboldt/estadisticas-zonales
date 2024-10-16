@@ -50,7 +50,7 @@ tema <- "NDFyB"
 
 #noCambio <- c(1, 2, 13, 15, 17, 22, 83, 240)# Macarena
 #noCambio<-c(1, 5,7,8,20,28,150,677)#tinigua
-#noCambio<-t_noCambio$Value  # todos los núcleos
+noCambio<-t_noCambio$Value  # todos los núcleos
 
 
 #**********************************************************
