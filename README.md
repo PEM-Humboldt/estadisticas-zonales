@@ -14,7 +14,8 @@ Este flujo de trabajo está diseñado para calcular estadísticas de indicadores
 Los resultados de los cálculos zonales y se compilan en tablas y gráficos para facilitar la interpretación y el análisis de los datos obtenidos. 
 
 
-- [Análisis multitemporal de la huella espacial humana](./Proyectos/Huella_Humana)
+- [Análisis multitemporal de la huella espacial humana](./Proyectos/Huella_Humana_altillanura)
 - [Análisis departmental de la integridad forestal](./Proyectos/Integridad_forestal)
 - [Análisis Huella en Sumapaz](./Proyectos/Huella_Humana_Sumapaz)
+- [Proyecto_Amazonas_FPLV](./Proyectos/Amazonas)
   
