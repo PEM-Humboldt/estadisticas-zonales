@@ -10,7 +10,7 @@ En la última sección del código las tablas se organizan para su exportación 
 ## Organizar directorio de trabajo
 
 Las entradas de ejemplo de este ejercicio están almacenadas en [aquí](xxxx).
-Una vez descargadas y descomprimida, reemplaze la carpeta “Originales” en el directorio Datos del proyecto.
+Una vez descargadas y descomprimida, reemplaze la carpeta “Datos” en el directorio Datos del proyecto.
 El directorio del proyecto está organizado de esta manera que facilita la ejecución del
 código:
 
