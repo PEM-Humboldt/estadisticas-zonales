@@ -18,7 +18,7 @@ En la última sección de los códigos las tablas se organizan para su exportaci
 ## Organizar directorio de trabajo
 
 Las entradas de ejemplo de este ejercicio están almacenadas en
-[aquí](xxx).
+[aquí](https://drive.google.com/file/d/1gSLalNB5Hwzt4EP9MhKXW5fApFXUnfNl/view?usp=drive_link)).
 Una vez descargadas y descomprimida, reemplaze la carpeta “Originales” en el directorio Datos del proyecto.
 El directorio del proyecto está organizado de esta manera que facilita la ejecución del
 código:
