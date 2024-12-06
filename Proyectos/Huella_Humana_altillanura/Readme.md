@@ -17,7 +17,7 @@ biodiversidad en estas áreas.
 
 <a id="ID_seccion1"></a>
 Las entradas de ejemplo de este ejercicio están almacenadas en
-[aquí](https://drive.google.com/file/d/1Xg04VRR4F4lbEFuua1d9FwtHeVZ28A1x/view?usp=drive_link).
+[aquí](https://drive.google.com/file/d/1QQOdoCdcq-L_hPY2YgeRXPSla02641uE/view?usp=drive_link).
 Una vez descargadas y descomprimida, reemplaze la carpeta “Originales” en el directorio Datos del proyecto.
 El directorio del proyecto está organizado de esta manera que facilita la ejecución del
 código:
