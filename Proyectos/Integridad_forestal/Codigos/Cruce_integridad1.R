@@ -55,7 +55,7 @@ dir_Resultados<- file.path ("Resultados")
 
 source(file.path("..", "..", "Funciones_comunes" , "estadísticas.R"))
 source(file.path("..", "..", "Funciones_comunes" , "preprocesamiento.R"))
-source(file.path("..", "..", "Funciones_comunes" , "visualización.R"))
+#source(file.path("..", "..", "Funciones_comunes" , "visualización.R"))
 
 
 #**********************************************************
@@ -63,7 +63,7 @@ source(file.path("..", "..", "Funciones_comunes" , "visualización.R"))
 #**********************************************************
 
 SisRef <- 9377
-nombre_capas<-c("Dep_COL", "runap", "CNegras" , "Resguardos","RCampesinas")
+nombre_capas<-c("Dep_COL","ndfyb", "runap", "CNegras" , "Resguardos","RCampesinas")
 
 
 #**********************************************************
@@ -74,9 +74,14 @@ nombre_capas<-c("Dep_COL", "runap", "CNegras" , "Resguardos","RCampesinas")
 
 capas_files<-list.files(dir_Datos_Or, recursive=T, pattern= "shp$", full.names = T)
 
-capas_st<-lapply(capas_files[1:4],CargarProyectar)
+capas_st<-lapply(capas_files[1:5],CargarProyectar) # revisar  que el orden sea el correcto("Dep_COL", "runap", "CNegras" , "Resguardos","RCampesinas")
+# [1] "Datos/Originales/MGN2023_DPTO_POLITICO/MGN_ADM_DPTO_POLITICO.shp"                                               
+# [2] "Datos/Originales/SHP_COMUNIDADES_NEGRAS/COMUNIDADES_NEGRAS_GCSmagna.shp"                                        
+# [3] "Datos/Originales/xn--Resguardos_Indgenas-shp-ffc/d138eda3-19b9-4546-a41c-d5ef69c5f00a2020329-1-qzm77a.r5v1d.shp"
+# [4] "Datos/Originales/Zonas_Reserva_Campesina93/Zonas_Reserva_Campesina.shp"                                         
+# [5] "Datos/Originales/ZonasReservaCampesina/ZRC_2019.shp"      
 
-capas_st[[5]]<- st_read(capas_files[[5]])# reservas campesinas e cargo por separado porque presentaba problemas de proyección
+capas_st[[6]]<- st_read(capas_files[[6]])# reservas campesinas e cargo por separado porque presentaba problemas de proyección
 
 names(capas_st)<-nombre_capas
 
@@ -146,6 +151,8 @@ raster_paths <- paste0(dir_Datos_Intm,"/",nombre_capas,".tif ")
 
 capas_st$Dep_COL$dpto_ccdgo<- as.numeric(capas_st$Dep_COL$dpto_ccdgo)
 
+capas_st$ndfyb$id_NF <- as.numeric(factor(capas_st$ndfyb$Nombre))
+
 capas_st$CNegras$CNCODIGO<- as.numeric(capas_st$CNegras$CNCODIGO)
 
 capas_st$Resguardos$id_RI <- as.numeric(factor(capas_st$Resguardos$NOMBRE_RES))
@@ -153,9 +160,11 @@ capas_st$Resguardos$id_RI <- as.numeric(factor(capas_st$Resguardos$NOMBRE_RES))
 capas_st$RCampesinas$id_RC <- as.numeric(factor(capas_st$RCampesinas$Nombre))
 
 
+
 # atributos a usar para rasterizar
 
 atributo_rast<- c("dpto_ccdgo",
+                  "id_NF",
                   "id_pnn",
                   "CNCODIGO",
                   "id_RI",
@@ -163,10 +172,13 @@ atributo_rast<- c("dpto_ccdgo",
 
 
 cat_rast<- c("dpto_cnmbr",
+                    "Nombre",
                    "nombre",
                    "CNNOMBRE",
                    "NOMBRE_RES",
-                   "Nombre")
+                   "Nombre"
+            
+             )
 
 
 # rasterizar capas vectoriales y asignar niveles
@@ -174,10 +186,11 @@ cat_rast<- c("dpto_cnmbr",
 raster_capas <-setNames(lapply(seq_along(raster_paths), rasterizar), nombre_capas)
 
 levels(raster_capas$Dep_COL)<- capas_st$Dep_COL[c(atributo_rast[1], cat_rast[1])]%>%st_drop_geometry()
-levels(raster_capas$runap)<- capas_st$runap[c(atributo_rast[2], cat_rast[2])]%>%st_drop_geometry()
-levels(raster_capas$CNegras)<- capas_st$CNegras[c(atributo_rast[3], cat_rast[3])]%>%st_drop_geometry()
-levels(raster_capas$Resguardos)<- unique(capas_st$Resguardos[c(atributo_rast[4], cat_rast[4])]%>%st_drop_geometry())
-levels(raster_capas$RCampesinas)<- capas_st$RCampesinas[c(atributo_rast[5], cat_rast[5])]%>%st_drop_geometry()
+levels(raster_capas$ndfyb)<- capas_st$ndfyb[c(atributo_rast[2], cat_rast[2])]%>%st_drop_geometry()
+levels(raster_capas$runap)<- capas_st$runap[c(atributo_rast[3], cat_rast[3])]%>%st_drop_geometry()
+levels(raster_capas$CNegras)<- capas_st$CNegras[c(atributo_rast[4], cat_rast[4])]%>%st_drop_geometry()
+levels(raster_capas$Resguardos)<- unique(capas_st$Resguardos[c(atributo_rast[5], cat_rast[5])]%>%st_drop_geometry())
+levels(raster_capas$RCampesinas)<- capas_st$RCampesinas[c(atributo_rast[6], cat_rast[6])]%>%st_drop_geometry()
 
 
 # Crear máscara de integridad de zonas no especiales #### 
@@ -189,7 +202,7 @@ if (file.exists(raster_path)) {
     exmask0 <- rast(raster_path)
     
   } else {
-    exmask0 <- Reduce(function(x, y) mask(x, y, inverse = TRUE), raster_capas[2:5], init = Intg)
+    exmask0 <- Reduce(function(x, y) mask(x, y, inverse = TRUE), raster_capas[2:6], init = Intg)
     
   # Guardar el raster resultante en un archivo
     writeRaster(exmask0, raster_path)
@@ -200,8 +213,12 @@ if (file.exists(raster_path)) {
 #****************************************************************************
 # Análisis por departamento ----------------------------
 #****************************************************************************
+# corregir nombres
+
 
 list_deptos<- capas_st[[1]] %>% split(., .$dpto_ccdgo)
+
+
 
 # Construcción de listas
 
@@ -210,21 +227,23 @@ list_rasters<- list()
 df_global<- data.frame()
 
 df_runap<-data.frame()
+df_ndfyb<-data.frame()
 df_negros<-data.frame()
 df_resguardos<-data.frame()
 df_campesino<-data.frame()
 
 
-i=1
+i=29
 
 
-#for ( i in c(1:27,29:length(list_deptos))){
+for ( i in c(1:27,29:length(list_deptos))){
 
-for ( i in 1:3){  
+#for ( i in 1:3){  
   
   
   Nombre_dept<- list_deptos[[i]]$dpto_cnmbr
   print(Nombre_dept)
+
   
   # areas de estudio para las capas base: Integridad y mascara de áreas no Específcas  ####
   r_Intg_aoi<-definicionAOI(Intg, i)
@@ -234,25 +253,27 @@ for ( i in 1:3){
   
   # Calcular estadísticas zonales y las mascaras de zonas para integridad
   
-  C_ZM<-lapply(raster_capas[2:5],zonalMask)
+  C_ZM<-lapply(raster_capas[2:6],zonalMask)
   
   
   ## Estadísticas zonales. Descripción local ####
   
   # colectar las estadísticas zonales
   
-  df_runap<-rbind(df_runap,C_ZM[[1]][[1]] )
-  df_negros<-rbind(df_negros,C_ZM[[2]][[1]])
-  df_resguardos<-rbind(df_resguardos,C_ZM[[3]][[1]])
-  df_campesino<-rbind(df_campesino,C_ZM[[4]][[1]])
+  df_ndfyb<-rbind(df_ndfyb,C_ZM[[1]][[1]] )
+  df_runap<-rbind(df_runap,C_ZM[[2]][[1]] )
+  df_negros<-rbind(df_negros,C_ZM[[3]][[1]])
+  df_resguardos<-rbind(df_resguardos,C_ZM[[4]][[1]])
+  df_campesino<-rbind(df_campesino,C_ZM[[5]][[1]])
   
   # calcular estadísticas globales por departamentos ####
   
   # construcción de contenedor raster 
   # llenado con Stack de los rasters para cada zona especial 
   
-  list_rasters[[i]]<- c(C_ZM[[1]][[2]],C_ZM[[2]][[2]],C_ZM[[3]][[2]],C_ZM[[4]][[2]],exmask)%>%
-    setNames(c(names(C_ZM), "noEspecial"))
+  nombre_capasCor<-c("NDFyB", "RUNAP", "CNegras" , "RIndígen","RCampes") # corregir el nombre de la capa para los resultados
+  list_rasters[[i]]<- c(C_ZM[[1]][[2]],C_ZM[[2]][[2]],C_ZM[[3]][[2]],C_ZM[[4]][[2]],C_ZM[[5]][[2]],exmask)%>%
+    setNames(c(nombre_capasCor, "noEspecial"))
   
   names(list_rasters)[i]<-Nombre_dept
   
@@ -269,9 +290,21 @@ for ( i in 1:3){
   # Crear el box plot ####
   
   
-  png(filename=paste0(dir_Resultados,"/Gráficas Departamentos/",Nombre_dept), width=555)
+  #todos_nan <- all(is.na(values(list_rasters[[i]][[1]]))) # revisando si los existe lnucleos en la zona
+ 
   
-  boxplot(list_rasters[[i]])
+  png(filename=paste0(dir_Resultados,"/Gráficas Departamentos/",Nombre_dept, ".png"), width=555)
+  
+
+  
+  # if  (todos_nan == TRUE){
+  #   boxplot(list_rasters[[i]][[2:6]])
+  # } else{
+  # boxplot(list_rasters[[i]])    
+  # }
+  
+  boxplot(list_rasters[[i]])    
+
   
   dev.off()
   
@@ -282,8 +315,8 @@ for ( i in 1:3){
 
 # Guardar la información de las estadísticas zonales
 
-l_tablas<- list(df_runap,df_negros,df_resguardos,df_campesino)
-names(l_tablas)<- nombre_capas[2:5]
+l_tablas<- list(df_ndfyb,df_runap,df_negros,df_resguardos,df_campesino)
+names(l_tablas)<- nombre_capasCor[1:5]
 
 
 GuardarTablas<-function(x){
@@ -305,25 +338,26 @@ lapply(seq_along(l_tablas),GuardarTablas)
 
 # Guardar la información de las estadísticas departamentales
 
-df_global<-df_global[,c(5,1:4)]
-row.names(df_global)<-NULL
+df_global0<-df_global[,c(1,5,2:4)]
+row.names(df_global0)<-NULL
 
-write_excel_csv2(df_global, paste0(dir_Resultados,"/tablas_Col_def/Especiales_Stats.csv"))
+write_excel_csv2(df_global0, paste0(dir_Resultados,"/tablas_Col_def/Especiales_Stats.csv"))
 
 
-t_html<-datatable(df_global, 
+t_html<-datatable(df_global0, 
           options = list(pageLength = 35 , 
                          paging=T,        
                          language = list( search = "Buscar:",
                                           lengthMenu = "Mostrar _MENU_ entradas")))  %>%
-  formatRound(3:5, 2)
+  formatRound(3:5, 2, dec.mark = ",", mark = ".") 
 
-saveWidget(t_html, file = paste0(dir_Resultados,"/tablas departamento/",names(l_tablas)[x] ,".html"))##
+t_html
+saveWidget(t_html, file = paste0(dir_Resultados,"/tablas_Col_def/","Especiales_Stats.html"))##
 
 
 
 
-list_rasters
+
 
 
 
