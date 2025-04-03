@@ -1,7 +1,12 @@
 # Título: Prioridades de la Restauración en el país
 #
 # Descripción: Obtener cifras de la prioridades de restauración a nivel departament y  por zonas de manejo espacial en su jurisdicción
-#
+# Obtención de estadísticas Por categorías de priorización a nivel de:
+# Departamento
+# Departamento y zonas especiales
+# Departamentos, zonas especiales y unidades
+# Elaboración de gráficas de barras por zona especial y escribiendo los porcentajes de la zona y el área por departamento
+
 # Autor(es): Alejandra Narváez Vallejo
 #
 
@@ -219,7 +224,7 @@ i=1
 
 for ( i in c(1:27,29:length(list_deptos))){
   
-  #for ( i in 1:3){  
+ # for ( i in 1:3){  
   
   
   Nombre_dept<- list_deptos[[i]]$dpto_cnmbr
