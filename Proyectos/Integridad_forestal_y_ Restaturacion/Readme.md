@@ -11,7 +11,8 @@ Prioridades de la restauracion en áreas especiales por departamento
 ================
 Obtener cifras de la prioridades de restauración a nivel departament y  por zonas de manejo espacial en su jurisdicción
 
-## Organizar directorio de trabajo
+Organizar directorio de trabajo
+================
 
 Las entradas de ejemplo de este ejercicio están almacenadas en [aquí](https://drive.google.com/file/d/1I2_rbLos8ysJSRRXa6Y9gv0YXe3Pbjat/view?usp=drive_link).
 Una vez descargadas y descomprimida, reemplaze la carpeta “Datos” en el directorio Datos del proyecto.
