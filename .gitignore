@@ -53,6 +53,7 @@ rsconnect/
 
 **/Datos/Originales/*
 **/Datos/Intermedios/*
+**/Intermedios/*
 
 # No ignorar los archivos .gitkeep dentro de 'Originales' y 'Intermedios'
 !**/.gitkeep
