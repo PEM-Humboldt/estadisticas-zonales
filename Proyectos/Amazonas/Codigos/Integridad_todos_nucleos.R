@@ -52,7 +52,7 @@ source(file.path("..", "..", "Funciones_comunes" , "preprocesamiento.R"))
 # Cargar Variables de importancia -------------------------
 #**********************************************************
 
-nombres <- c( "2019")
+nombres <- c( "H2018", "H2020", "H2022")
 Integridad_cat <- data.frame(Cat = 1:3,
                              nom = c( "Baja", "Media", "Alta"))
 
@@ -64,7 +64,7 @@ m <- c(0, 7, 1,
 
 reclass_mat <- matrix(m, ncol = 3, byrow = TRUE)
 
-#areaSel<-"NDFyB"#"Amazonas"
+#areaSel<-"NDFyB"
 areaSel<-"Amazonas"  
 #**********************************************************
 # Cargar los datos necesarios ----------------------------
@@ -75,7 +75,7 @@ areaSel<-"Amazonas"
 capas_raster <- list.files(
   dir_Datos_Or,
   recursive = T,
-  pattern = "^FSII.*\\.tif$",
+  pattern = "^IIEB.*\\.tif$",
   full.names = T
 )
 
@@ -98,6 +98,7 @@ SisRef <- crs (raster_interes)
 
 #capas_st<-st_read(grep(capas_files, pattern="Amazonia9377", value=T))%>%st_union()%>%st_sf
 #st_crs(capas_st)<-9377
+capas_st <- lapply(grep(capas_files, pattern="Amazonia_proHuella", value=T), CargarProyectar)[[1]] # nucleos
 
 capas_st <- lapply(grep(capas_files, pattern="AMAZONAS.shp", value=T), CargarProyectar)[[1]]# Amazonas
 
@@ -145,7 +146,7 @@ r_aoi <- capas_st %>%
 
 
 
-levels(r_aoi) <- capas_st[c(atributo_rast, cat_rast)] %>% st_drop_geometry()
+#levels(r_aoi) <- capas_st[c(atributo_rast, cat_rast)] %>% st_drop_geometry() # no estou segura de necesitarlo
 
 plot(r_aoi)
 
@@ -169,6 +170,7 @@ list_deptos <- list(capas_st)
 
 Stat_reclass <- data.frame()
 
+i=1
 for (i in seq_along(list_deptos)) {
   
   Nombre_dept <- areaSel
@@ -191,8 +193,8 @@ for (i in seq_along(list_deptos)) {
       Categorías = factor(value, levels = 1:3, labels = Integridad_cat$nom),
       Año = as.numeric(as.character(factor(
         layer,
-        levels = 1,
-        labels = c( 2019)
+        levels = 1:3,
+        labels = c( 2018,2020,2022)
       )))
     ) %>%
     rename(Conteo = count)
@@ -213,7 +215,7 @@ Stat_reclass <- dplyr::select(Stat_reclass, Municipio, Año, Categorías, Conteo
 
 # Guardar la información de las estadísticas zonales
 
-write_excel_csv2(Stat_reclass, paste0(dir_Resultados, "/Int2019_clases_",areaSel,".csv"))
+write_excel_csv2(Stat_reclass, paste0(dir_Resultados, "/Int_clases_",areaSel,".csv"))
 
 #****************************************************************************
 # Gráficas ####
@@ -223,31 +225,88 @@ write_excel_csv2(Stat_reclass, paste0(dir_Resultados, "/Int2019_clases_",areaSel
 
 # llamr las tablas de los datos de la región amazonas y los núcleos , para dibujar en una única gráfica.
 
-n<-read_csv2(paste0(dir_Resultados, "/Int2019_clases_NDFyB.csv"))
-a<-read_csv2(paste0(dir_Resultados, "/Int2019_clases_Amazonas.csv"))
+n<-read_csv2(paste0(dir_Resultados, "/Int_clases_NDFyB.csv"))
+a<-read_csv2(paste0(dir_Resultados, "/Int_clases_Amazonas.csv"))
 
 
 an<- rbind(n,a)
 
 an
 
+# Número de pixeles de los nucleos
+r_aoi_tot_n <- 5046129 #sum(as.integer(freq(r_aoi)$count)) # 
+# Número de pixeles de amazonas
+r_aoi_tot_a <- 41228027
+
+# completar con las zonas de no bosque
+
+clp <- data.frame( Municipio=c("NDFyB","NDFyB","NDFyB","Amazonas","Amazonas","Amazonas"),   
+               Año=c(2018,2020,2022,2018,2020,2022), 
+               Categorías=  "No bosque" ,   
+               Conteo=c(r_aoi_tot_n-sum(an$Conteo[an$Año==2018 & an$Municipio =="NDFyB"]),
+                        r_aoi_tot_n-sum(an$Conteo[an$Año==2020 & an$Municipio =="NDFyB"]),
+                        r_aoi_tot_n-sum(an$Conteo[an$Año==2022 & an$Municipio =="NDFyB"]),
+                        r_aoi_tot_a-sum(an$Conteo[an$Año==2018 & an$Municipio =="Amazonas"]),
+                        r_aoi_tot_a-sum(an$Conteo[an$Año==2020 & an$Municipio =="Amazonas"]),
+                        r_aoi_tot_a-sum(an$Conteo[an$Año==2022 & an$Municipio =="Amazonas"])),
+               Porcentaje=0)
+
+
+an <- rbind(an,clp)
+
+
+an <- an %>% 
+  group_by(Municipio,Año) %>%
+  mutate(Porcentaje = 100 * Conteo / sum(Conteo)) %>%
+  ungroup()
+
+write_excel_csv2(an, paste0(dir_Resultados, "/Int_clases_total.csv"))
+
+
+datatable(an,
+          options = list(
+            pageLength = 18 ,
+            paging = T,
+            language = list(search = "Buscar:", lengthMenu = "Mostrar _MENU_ entradas")
+          )) 
+
 
 
 ## Gráfico sencillo clases ####
 
-an$Categorías <- factor(an$Categorías, levels=Integridad_cat$nom)
+an$Categorías <- factor(an$Categorías, levels=  c("No bosque" , "Baja",      "Media",     "Alta"      ))
+
 
 gg <- an %>%
-  ggplot(aes(y = Porcentaje, x = Municipio, fill= Categorías))+
-  geom_bar(stat="identity")+
-  scale_fill_manual(values = c("Baja" = "red3", "Media" = "orange", "Alta" = "darkgreen"))+
-  labs(y="Porcentaje de bosque potencial",
-       x="", fill= "Integridad")+
-  theme_bw()+
-  theme(axis.text.y= element_text(hjust = .5), legend.position =  "bottom")
+ # filter(Municipio=="NDFyB") %>% 
+  ggplot(aes(y = Porcentaje, x = Año, alluvium = Categorías))
+# barras color , alluvium con color
+gg +
+  geom_alluvium(
+    aes(fill = Categorías),
+    width = 1,
+    alpha = .4,
+    
+    curve_type = "arctangent",
+    curve_range = 1
+  ) +
+  geom_stratum(aes(stratum = Categorías
+                   , fill = Categorías), #     alpha = .4),
+               #decreasing = FALSE,
+               width = 1,
+               linewidth=.2,
+               color="grey30") +
+  scale_fill_manual(values = c( "No Bosque"="grey","Baja" = "red3", "Media" = "orange", "Alta" = "darkgreen"))+
+ # scale_colour_manual(values = c( "No Bosque"="grey","Baja" = "red3", "Media" = "orange", "Alta" = "darkgreen"))+
+  #scale_fill_brewer(palette = "RdYlGn", direction = -1) +
+  #scale_colour_brewer(palette = "RdYlGn", direction = -1) +
+  labs(y = "Porcentaje de área",
+       x = "",
+       fill= "Integridad IIEB") +
+  facet_wrap(~ Municipio, scales = "fixed", ncol=1) +
+  theme_bw() +
+  theme(legend.position = "bottom")
 
-gg
+ggsave(file.path(dir_Resultados, "Porcentaje_Categorias_Amazonas_NDFyB_n.png"), width = 15, height =  15, units= "cm")
 
-ggsave(file.path(dir_Resultados, "PorcentajeBosquePotencial_Amazonas_NDFyB.png"))
 
-gg

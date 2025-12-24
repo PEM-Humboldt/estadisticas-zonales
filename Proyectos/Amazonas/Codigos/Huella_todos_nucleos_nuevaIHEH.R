@@ -179,8 +179,7 @@ plot(r_aoi)
 # Análisis por unidad de análisis ----------------------------
 #****************************************************************************
 
-# Se realiza un análisis espacial  a la unidad de analisis. El bucle está pero es innecesario
-# del IHEH y sus categorías de intensidad. 
+# Se realiza un análisis espacial  a la unidad de analisis. El bucle está para años
 # los resutados se guarda en en dos data frames:
 # Stat_values: Contiene estadísticas zonales (promedio, mediana, desviación estándar)
 # Stat_reclass: Contiene la frecuencia y porcentaje de categorías de intesisdad de IHEH
