@@ -7,7 +7,12 @@ Se calculan estadísticas zonales de integridad en las áreas especiales y se re
 
 En la última sección del código las tablas se organizan para su exportación en formatos .csv y html para tener tablas interactivas que faciliten la exploración. 
 
-## Organizar directorio de trabajo
+Prioridades de la restauracion en áreas especiales por departamento
+================
+Obtener cifras de la prioridades de restauración a nivel departament y  por zonas de manejo espacial en su jurisdicción
+
+Organizar directorio de trabajo
+================
 
 Las entradas de ejemplo de este ejercicio están almacenadas en [aquí](https://drive.google.com/file/d/1I2_rbLos8ysJSRRXa6Y9gv0YXe3Pbjat/view?usp=drive_link).
 Una vez descargadas y descomprimida, reemplaze la carpeta “Datos” en el directorio Datos del proyecto.
@@ -17,6 +22,7 @@ código:
     Códigos
     │- Cruce_integridad1 (Definitiva)
     │- Cruce_integridad ( Por arreglar)
+    |- Restauracion_dep
     │    
     └-Datos
     │ │
