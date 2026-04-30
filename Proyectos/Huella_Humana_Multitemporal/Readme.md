@@ -24,7 +24,18 @@ código:
 
     Códigos
     │- Huella_Altillanura
-    │    
+    │- Huella_comparar_gassert.R
+    │- Huella_comparar_mu.R
+    │- Huella_comparar_wcs.R
+    │- Huella_dane_analisis.R
+    │- Huella_dane_analisis_dpto.R
+    │- Huella_dane_analisis_dpto_2015.R
+    │- Huella_dane_analisis_mun_bio.R
+    │- Huella_dane_analisis_municipio_limpio.R
+    │- Huella_MT&bioma_IHEH_nueva.R
+    │- Huella_MT_dept.R
+    │- Huella_MT_dept_IHEH_nueva.R
+    │- temp_Huella_MT_dept_2015.R  
     └-Datos
     │ │
     │ └- Originales: replaze aquí los datos que bajo
