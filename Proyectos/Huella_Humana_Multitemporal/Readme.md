@@ -37,28 +37,16 @@ código:
 
 
 # Descripción de códigos
-Huella_comparar_gassert.R
-Compara la huella de Gassert con la huella institucional; calcula correlaciones y ajusta modelos lineales.
-Huella_comparar_mu.R
-Repite el análisis comparativo (correlaciones y modelos) usando el modelo “mu”.
-Huella_comparar_wcs.R
-Comparación de huellas con el modelo WCS (Eric Sanderson), incluyendo correlaciones y regresión lineal.
-Huella_dane_analisis.R
-Análisis general de huella vs. variables DANE; versión inicial conservada como respaldo.
-Huella_dane_analisis_dpto.R
-Evalúa la huella por departamento en relación con el valor agregado (precios corrientes y constantes).
-Huella_dane_analisis_dpto_2015.R
-Mismo análisis departamental, pero usando el modelo de huella de Correa para el año 2015.
-Huella_dane_analisis_mun_bio.R
-Análisis de huella a nivel municipal incorporando criterios/agrupaciones biofísicas.
-Huella_dane_analisis_municipio_limpio.R
-Análisis municipal depurado; enfocado en valor agregado a precios corrientes.
-Huella_MT&bioma_IHEH_nueva.R
-Integra métricas de huella con biomas para la nueva versión del IHEH.
-Huella_MT_dept.R
-Calcula estadísticas zonales de la huella (versión antigua de Correa) a nivel departamental.
-Huella_MT_dept_IHEH_nueva.R
-Estadísticas zonales a nivel departamental para la nueva versión del IHEH.
-temp_Huella_MT_dept_2015.R
-Script temporal de procesamiento (2015); funcionalidad no clara, candidato a eliminación.
+Huella_comparar_gassert.R: Compara la huella de Gassert con la huella institucional; calcula correlaciones y ajusta modelos lineales.
+Huella_comparar_mu.R: Repite el análisis comparativo (correlaciones y modelos) usando el modelo “mu”.
+Huella_comparar_wcs.R: Comparación de huellas con el modelo WCS (Eric Sanderson), incluyendo correlaciones y regresión lineal.
+Huella_dane_analisis.R: Análisis general de huella vs. variables DANE; versión inicial conservada como respaldo.
+Huella_dane_analisis_dpto.R: Evalúa la huella por departamento en relación con el valor agregado (precios corrientes y constantes).
+Huella_dane_analisis_dpto_2015.R: Mismo análisis departamental, pero usando el modelo de huella de Correa para el año 2015.
+Huella_dane_analisis_mun_bio.R: Análisis de huella a nivel municipal incorporando criterios/agrupaciones biofísicas.
+Huella_dane_analisis_municipio_limpio.R:Análisis municipal depurado; enfocado en valor agregado a precios corrientes.
+Huella_MT&bioma_IHEH_nueva.R:Integra métricas de huella con biomas para la nueva versión del IHEH.
+Huella_MT_dept.R:Calcula estadísticas zonales de la huella (versión antigua de Correa) a nivel departamental.
+Huella_MT_dept_IHEH_nueva.R:Estadísticas zonales a nivel departamental para la nueva versión del IHEH.
+temp_Huella_MT_dept_2015.R:Script temporal de procesamiento (2015); funcionalidad no clara, candidato a eliminación.
 
