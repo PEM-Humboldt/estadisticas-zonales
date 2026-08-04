@@ -17,14 +17,25 @@ biodiversidad en estas áreas.
 
 <a id="ID_seccion1"></a>
 Las entradas de ejemplo de este ejercicio están almacenadas en
-[aquí](https://drive.google.com/file/d/1vIRruDHrKeZGSdZ-2AEdU9O6roJ0267x/view?usp=drive_link).
+[aquí corregir](https://drive.google.com/file/d/1vIRruDHrKeZGSdZ-2AEdU9O6roJ0267x/view?usp=drive_link).
 Una vez descargadas y descomprimida, reemplaze la carpeta “Originales” en el directorio Datos del proyecto.
 El directorio del proyecto está organizado de esta manera que facilita la ejecución del
 código:
 
     Códigos
     │- Huella_Altillanura
-    │    
+    │- Huella_comparar_gassert.R
+    │- Huella_comparar_mu.R
+    │- Huella_comparar_wcs.R
+    │- Huella_dane_analisis.R
+    │- Huella_dane_analisis_dpto.R
+    │- Huella_dane_analisis_dpto_2015.R
+    │- Huella_dane_analisis_mun_bio.R
+    │- Huella_dane_analisis_municipio_limpio.R
+    │- Huella_MT&bioma_IHEH_nueva.R
+    │- Huella_MT_dept.R
+    │- Huella_MT_dept_IHEH_nueva.R
+    │- temp_Huella_MT_dept_2015.R  
     └-Datos
     │ │
     │ └- Originales: replaze aquí los datos que bajo
@@ -34,4 +45,19 @@ código:
     │     │     
     |
     └- Resultados
+
+
+# Descripción de códigos
+- Huella_comparar_gassert.R: Compara la huella de Gassert con la huella institucional; calcula correlaciones y ajusta modelos lineales.
+- Huella_comparar_mu.R: Repite el análisis comparativo (correlaciones y modelos) usando el modelo “mu”.
+- Huella_comparar_wcs.R: Comparación de huellas con el modelo WCS (Eric Sanderson), incluyendo correlaciones y regresión lineal.
+- Huella_dane_analisis.R: Análisis general de huella vs. variables DANE; versión inicial conservada como respaldo.
+- Huella_dane_analisis_dpto.R: Evalúa la huella por departamento en relación con el valor agregado (precios corrientes y constantes).
+- Huella_dane_analisis_dpto_2015.R: Mismo análisis departamental, pero usando el modelo de huella de Correa para el año 2015.
+- Huella_dane_analisis_mun_bio.R: Análisis de huella a nivel municipal incorporando criterios/agrupaciones biofísicas.
+- Huella_dane_analisis_municipio_limpio.R:Análisis municipal depurado; enfocado en valor agregado a precios corrientes.
+- Huella_MT&bioma_IHEH_nueva.R:Integra métricas de huella con biomas para la nueva versión del IHEH.
+- Huella_MT_dept.R:Calcula estadísticas zonales de la huella (versión antigua de Correa) a nivel departamental.
+- Huella_MT_dept_IHEH_nueva.R:Estadísticas zonales a nivel departamental para la nueva versión del IHEH.
+temp_Huella_MT_dept_2015.R:Script temporal de procesamiento (2015); funcionalidad no clara, candidato a eliminación.
 
