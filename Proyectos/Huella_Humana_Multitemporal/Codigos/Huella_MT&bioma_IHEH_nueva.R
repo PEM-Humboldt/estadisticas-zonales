@@ -91,16 +91,20 @@ st_layers(ruta_archivo)
 # cargar y proyectar en el sistema de referencia definido
 capas_st <- st_read(ruta_archivo,layer="Limite_Municipal_Poligono") %>% st_transform(SisRef)
 
-# Departamento
-capas_st <- st_read(file.path(dir_Datos_Or ,"MGN2023_DPTO_POLITICO/MGN_ADM_DPTO_POLITICO.shp")) %>% st_transform(SisRef)
 
 # Bioma 
-capas_st <- st_read("~/GitHub/huella-humana-analisis/Datos/EcosistemasPotencialesDeColombia.gdb") %>% st_transform(SisRef)
+bioma <- st_read("~/GitHub/huella-humana-analisis/Datos/EcosistemasPotencialesDeColombia.gdb") %>% st_transform(SisRef)
 
 
 #**********************************************************
 # Preparar datos ----------------------------
 #**********************************************************
+## preparar capa mixta
+ unique(bioma$Bioma)
+
+bioma["Bioma"]
+capas_st [c(1,2,6)]
+View(st_drop_geometry((capas_st)))
 
 ## El indicador  ####
 
@@ -141,7 +145,8 @@ raster_paths <- paste0(dir_Datos_Intm, "/", "COL_RATER9377_",Unidad_analsis, ".t
 atributo_rast <- c("MpCodigo") # para municipio
 
 
-# Rasterizar capas vectoriales y asignar niveles (region)
+# Rasterizar capas vectoriales y asignar niveles
+
 if (file.exists(raster_paths)) {
   r_aoi <- rast(raster_paths)
 } else {
@@ -152,6 +157,51 @@ if (file.exists(raster_paths)) {
               filename = raster_paths)
   
 }
+
+levels(r_aoi)
+
+plot(r_aoi)
+
+# Rasterizar capas vectoriales y asignar niveles (bioma)
+raster_paths <- paste0(dir_Datos_Intm, "/", "COL_RATER9377_","Bioma", ".tif ")
+
+# Arreglar los campos para rasterizar: revisar comentarios de las siguientes lineas para ver cual aributo definir
+
+
+atributo_rastb <- c("Bioma") # Bioma
+
+
+
+if (file.exists(raster_paths)) {
+  r_bioma <- rast(raster_paths)
+} else {
+  # Si el raster no existe, rasterizar y guardar el resultado
+  r_bioma <- capas_st %>%
+    rasterize(y = r_base,
+              field = atributo_rastb,
+              filename = raster_paths)
+  
+}
+
+
+
+lookup_bioma <- levels(r_bioma) [[1]]
+lookup_muni <- levels(r_aoi) [[1]]
+plot(r_aoi)
+plot(r_bioma)
+
+levels(r_aoi)
+
+
+# crear combinacion bioma y municipio
+
+r_bioma_100000 <- r_bioma*100000
+levels(r_aoi_1000)
+levels()
+
+c_bioma_mun <- r_bioma_100000 +r_aoi
+
+
 
 #****************************************************************************
 # Análisis por departamento ----------------------------
@@ -165,8 +215,16 @@ if (file.exists(raster_paths)) {
 
 ## Estadísticas Zonales ####
 
-zonalTabla <- function(estadistico){
-  zonal(raster_interes, r_aoi, fun = estadistico, na.rm=T) %>%
+
+capas_st <- capas_st%>% 
+  mutate(area_cal_km2=units::drop_units(units::set_units(st_area(.),"km2"))) %>% 
+  .[c(1,2,6,8)]# revisar que campos son de interes use 1,2,5,6 para municicpio, 2,4,6, bioma, xx c(1,2,5,6,8)
+
+
+
+
+zonalTabla <- function(estadistico,r_zonas){
+  zonal(raster_interes, r_zonas, fun = estadistico, na.rm=T) %>%
     tidyr::pivot_longer(
       cols = c(`2018`, `2020`, `2022`),   # columnas de años
       names_to = "Año",
@@ -176,28 +234,49 @@ zonalTabla <- function(estadistico){
 }
 
 
-z_mean   <- zonalTabla("mean")
-z_sd     <- zonalTabla("sd")
-z_median <- zonalTabla("median")
-z_min <- zonalTabla("min")
-z_max <- zonalTabla("max")
+z_mean   <- zonalTabla("mean",c_bioma_mun)
+z_sd     <- zonalTabla("sd",c_bioma_mun)
+z_median <- zonalTabla("median",c_bioma_mun)
+z_min <- zonalTabla("min", c_bioma_mun)
+z_max <- zonalTabla("max", c_bioma_mun)
 
-Stat_values <- Reduce(function(x, y) merge(x, y, by =c(atributo_rast, "Año")),
+
+
+Stat_values <- Reduce(function(x, y) merge(x, y, by =c("Bioma", "Año")),
                       list(z_min,z_mean,z_median,z_max,z_sd))
 
+# Separar niveles da municipio y bioma ara completar son la informacion
+Stat_values <- Stat_values %>%
+  mutate(muniLevel = Bioma %% 10000,
+               BiomLevel = case_when(
+               nchar(Bioma) == 7 ~ as.numeric(substr(Bioma, 1, 2)),
+               nchar(Bioma) == 6 ~ as.numeric(substr(Bioma, 1, 1)),
+               nchar(Bioma) < 6  ~ 0,
+               TRUE ~ NA_real_
+             )
+           ) %>% 
+  rename(CombiCOD=Bioma)
+  
 
-capas_st <- capas_st%>% 
-  mutate(area_cal_km2=units::drop_units(units::set_units(st_area(.),"km2"))) %>% 
-  .[c(1,2,5,6,8)]# revisar que campos son de interes use 1,2,5,6 para municicpio, 2,4,6, bioma
 
 
-Stat_values <- merge(capas_st,Stat_values, by = atributo_rast)
+Stat_values <- merge(lookup_muni,Stat_values, by.x= "value" , by.y= "muniLevel") %>% 
+  rename("muniLevel"=value)
 
+Stat_values <- merge(lookup_bioma,Stat_values, by.x= "value" , by.y= "BiomLevel") %>% 
+  rename("BiomLevel"=value)
+
+Stat_values <- merge(capas_st,Stat_values, by= "MpCodigo") 
 
 
 # Preparar los insumos para iterar los análisis por departamento 
 
-list_deptos <- capas_st %>% split(.[[atributo_rast]])
+
+pol_bioma_mun <- as.polygons(c_bioma_mun, dissolve = TRUE, na.rm = TRUE)
+
+pol_bioma_mun <- st_as_sf(pol_bioma_mun)
+
+list_deptos <- pol_bioma_mun %>% split(.[["Bioma"]])
 #list_deptos [[c(-1088,-1089)]] quitar si municipios
 list_deptos [[4]] #quitar si dpto
 quitar <- c(1088,1089) # si dpto , no aplica para biomas
@@ -210,17 +289,19 @@ seq_along(list_deptos)[-quitar]
 Stat_reclass <- data.frame()
 i=5
 
-for (i in seq_along(list_deptos)[- quitar]) { # La indexación quinta las islas San Andrés y Providencia
-#for (i in seq_along(list_deptos)) { # si biomas
+atributo_rast <- "Bioma"
+
+for (i in seq_along(list_deptos)) { # La indexación quinta las islas San Andrés y Providencia
+  #for (i in seq_along(list_deptos)) { # si biomas
   
   
   Nombre_dept <-unique( list_deptos[[i]][[atributo_rast]])
   print(Nombre_dept)
   
   # limitar las huellas al area de estudio 
-   r_aoi_reclass <- definicionAOI(raster_reclass, i)
+  r_aoi_reclass <- definicionAOI(raster_reclass, i)
   
- 
+  
   ### Para las clases ####
   
   # Calcular la frecuencia de las clases
@@ -254,191 +335,37 @@ Stat_values <-  Stat_values %>% st_drop_geometry()
 
 Stat_reclass0 <- Stat_reclass %>% st_drop_geometry() %>% 
   dplyr::select( Cod_Zona, Año, Categorías, Conteo, Porcentage)%>% 
-  rename(!!atributo_rast := Cod_Zona, "Porcentaje" = Porcentage)
+  rename("Porcentaje" = Porcentage)
 
 
-Stat_reclass <- merge(
-  st_drop_geometry(capas_st),
-  Stat_reclass0,
-  by = atributo_rast,
-  all.y = TRUE
-)
+
+# Separar niveles da municipio y bioma ara completar son la informacion
+Stat_reclass0 <- Stat_reclass0 %>%
+  mutate(muniLevel = Cod_Zona %% 10000,
+         BiomLevel = case_when(
+           nchar(Cod_Zona) == 7 ~ as.numeric(substr(Cod_Zona, 1, 2)),
+           nchar(Cod_Zona) == 6 ~ as.numeric(substr(Cod_Zona, 1, 1)),
+           nchar(Cod_Zona) < 6  ~ 0,
+           TRUE ~ NA_real_
+         )
+  ) %>% 
+  rename(CombiCOD=Cod_Zona)
+
+
+Stat_reclass0 <- merge(lookup_muni,Stat_reclass0, by.x= "value" , by.y= "muniLevel") %>% 
+  rename("muniLevel"=value)
+
+Stat_reclass0 <- merge(lookup_bioma,Stat_reclass0, by.x= "value" , by.y= "BiomLevel") %>% 
+  rename("BiomLevel"=value)
+
+Stat_reclass0 <- merge(st_drop_geometry(capas_st),Stat_reclass0, by= "MpCodigo") 
+
+
+
 
 # Guardar la información de las estadísticas zonales
 
-write_excel_csv2(Stat_values, paste0(dir_Resultados, "/IHEHcorine_stats_", Unidad_analsis,".csv"))
-write_excel_csv2(Stat_reclass, paste0(dir_Resultados, "/IHEHcorine_clases_",Unidad_analsis,".csv"))
+write_excel_csv2(Stat_values, paste0(dir_Resultados, "/IHEHcorine_stats_", "bio_mun",".csv"))
+write_excel_csv2(Stat_reclass0, paste0(dir_Resultados, "/IHEHcorine_clases_","bio_mun",".csv"))
 
 
-# Elaborar tablas dinámicas
-t1 <- datatable(Stat_values,
-                options = list(
-                  pageLength = 30 ,
-                  paging = T,
-                  language = list(search = "Buscar:", lengthMenu = "Mostrar _MENU_ entradas")
-                )) %>%
-  formatRound(columns = c(5, 7:11), digits = 2)
-
-t1
-# Guardar la tabla en un archivo HTML
-saveWidget(t1, file = file.path(dir_Resultados, paste0( "Estadísticas_IHEHcorine_", Unidad_analsis,".html")))
-
-t2 <- datatable(Stat_reclass,
-                options = list(
-                  pageLength = 30 ,
-                  paging = T,
-                  language = list(search = "Buscar:", lengthMenu = "Mostrar _MENU_ entradas")
-                )) %>%
-  formatRound(columns = c(5,9), digits = 2)
-
-t2
-saveWidget(t2, file = file.path(dir_Resultados,paste0( "EstadísticasClases_IHEHcorine_", Unidad_analsis,".html")))
-
-#****************************************************************************
-# Gráficas ####
-#****************************************************************************
-
-## Gráfica de valores ####
-
-ggplot(Stat_values) +
-  geom_line(aes(x = Año, y = mean, colour = !!Unidad_analsis), linewidth =
-              1.5)
-+
-  geom_point(aes(x = Año, y = mean, colour = Unidad_analsis), size=3) +
-  labs(x = "", y = "Promedio de IHEH") +
-  scale_color_brewer(palette = "Set2", direction = -1) +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        axis.title.y = element_text(margin = margin(l = 10), vjust = 3.5))
-
-
-ggsave(file.path(dir_Resultados, "Promedio_IHEH_dpto.png"), width = 16.98625, height =  11.66812, units="cm")
-
-
-Stat_reclass$Categorías <- as.factor(Stat_reclass$`Categorías`)
-
-
-Stat_reclass0  <-   Stat_reclass
-
-## Gráfico sencillo clases ####
-
-gg <- Stat_reclass0 %>%
-  filter(Municipio == "CUMARIBO") %>%
-  ggplot(aes(y = Porcentage, x = Año, alluvium = Categorías))
-
-# barras con color , alluvium gris
-gg + geom_alluvium(
-  color = "black",
-  width = 1.5,
-  alpha = .2,
-  curve_type = "arctangent" ,
-  curve_range = 1
-) +
-  geom_stratum(aes(stratum = Categorías, fill = Categorías), width = 1.5) +
-  theme_bw()
-
-
-
-# barras blancas , alluvium con color
-gg + geom_alluvium(
-  aes(fill = Categorías, colour = Categorías),
-  width = 1.5,
-  alpha = 2 / 3,
-  #   decreasing = FALSE,
-  curve_type = "arctangent",
-  curve_range = 1,
-) +
-  geom_stratum(aes(stratum = Categorías), #decreasing = FALSE,
-               width = 1.5) +
-  theme_bw()
-
-
-## todas las gráficas juntas ####
-
-gg <- Stat_reclass0 %>%
-  ggplot(aes(y = Porcentaje, x = Año, alluvium = Categorías))
-
-# barras color , alluvium con color
-gg +
-  geom_alluvium(
-    aes(fill = Categorías, colour = Categorías),
-    width = 2,
-    alpha = .4,
-    curve_type = "arctangent",
-    curve_range = 1
-  ) +
-  geom_stratum(aes(stratum = Categorías
-                   , fill = Categorías), #     alpha = .4),
-               #decreasing = FALSE,
-               width = 2) +
-  scale_fill_brewer(palette = "RdYlGn", direction = -1) +
-  labs(y = "Porcentaje de área", x = "") +
-  facet_wrap(~ Departamento, scales = "fixed", nrow = 4) +
-  theme_bw() +
-  theme(legend.position = "bottom")
-
-
-ggsave(file.path(dir_Resultados, "Porcentaje_Categorias_dpto.png"), width = 16.98625, height =  15.5, units= "cm")
-
-
-
-# barras blancas , alluvium con color
-gg + geom_alluvium(
-  aes(fill = Categorías, colour = Categorías),
-  width = 2,
-  alpha = 2 / 3,
-  #   decreasing = FALSE,
-  curve_type = "arctangent",
-  curve_range = 1
-) +
-  geom_stratum(aes(stratum = Categorías), width = 2) +
-  scale_fill_brewer(palette = "RdYlGn", direction = -1) +
-  labs(y = "Porcentage de área", x = "") +
-  facet_wrap( ~ Departamento, scales = "fixed", nrow = 4) +
-  theme_bw() +
-  theme(legend.position = "bottom")
-
-# mapas ####
-
-
-# parametros de gráficas
-
-colores <- c("Natural" = "#2ca02c","Bajo" = "#1f77b4","Medio" = "#ff7f0e", "Alto" = "#d62728")
-
-raster_reclass8 <- raster_reclass[[5]]
-levels(raster_reclass8) <- Huella_cat
-
-# Gráfico RUNAP
-plot(raster_reclass8, col= colores, 
-     axes=FALSE, 
-     box=TRUE, 
-     main= "Intensidad de IHEH 2018"
-)
-
-plot(capas_st$geometry, add=T)
-plot(Runap, add=T, col= rgb(1, 1, 1, alpha = 0.3))
-
-
-library(ggplot2)
-
-# Convertir raster a data.frame para ggplot
-r_df <- as.data.frame(raster_reclass8, xy = TRUE)
-colnames(r_df)[3] <- "valor"
-
-# Centroides para etiquetas
-centroides <- st_centroid(capas_st)
-
-# Plot
-ggplot() +
-  geom_raster(data = r_df, aes(x = x, y = y, fill = valor)) +
-  scale_fill_manual(values = colores, name = "Intensidad IHEH") +
-  geom_sf(data = capas_st, fill = NA, color = "black", size = 0.3) +
-  # geom_sf_label(data=capas_st,aes(label=dpto_cnmbr), size=2)
-  geom_sf_text(data = capas_st, aes(label = dpto_cnmbr),
-               size = 2.5, color = "black", fontface = "bold", nudge_x = 60000,nudge_y = -10000) +
-  theme_minimal() +
-  labs(title = "Intensidad de IHEH 2018", x="", y="") +
-  coord_sf()+
-  theme(legend.position = "bottom")
-
-ggsave(ggsave(file.path(dir_Resultados, "Intensidad IHEH_2018.png"), width = 16.98625, height =  15.5, units= "cm"))

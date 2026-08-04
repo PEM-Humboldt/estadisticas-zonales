@@ -88,12 +88,12 @@ Stat_reclass <- read.csv2( paste0(dir_Resultados, "/IHEHcorine_clases_",Unidad_a
 ## tablas iheh  ####
 
 homogenizarCodigo <- function(Stat){
-str_pad(
-  as.character(Stat[[atributo_rast]]),
-  width = 5,
-  side = "left",
-  pad = "0"
-)
+  str_pad(
+    as.character(Stat[[atributo_rast]]),
+    width = 5,
+    side = "left",
+    pad = "0"
+  )
 }
 
 Stat_values[[atributo_rast]] <- homogenizarCodigo(Stat_values)
@@ -115,7 +115,7 @@ Eco_iheh <- ecoMergeIheh(Stat_values) %>%
          VA2area= `Actividades secundarias **`/area_cal_km2,
          VA3area= `Actividades terciarias ***`/area_cal_km2, 
          VATarea= VA/area_cal_km2 ) %>% 
-
+  
   mutate(
     Piso_termico = case_when(
       MpAltitud < 1000 ~ "Cálido",
@@ -149,79 +149,8 @@ Eco_iheh_rcl <- ecoMergeIheh(Stat_reclass)%>%
 # Análisis por departamento ----------------------------
 #****************************************************************************
 
-## ECO_iheh #######
-Eco_iheh %>% 
-  filter(Año==2018) %>% 
-
-  ggplot( aes(x = VA, y = mean)) +
-  geom_point()
-
-
-
-
-Eco_iheh %>%
-  tidyr::pivot_longer(cols = c(min, median, mean,max , sd),
-               names_to = "variable",
-               values_to = "valor") %>%
-  ggplot(aes(x = VA, y = valor)) +
-  geom_point(alpha = 0.6) +
-  scale_x_log10() +
-  facet_grid(Año ~ variable, scales = "free_y") +
-  labs(title = "Relación entre VA e indicadores IHEH por año",
-       x = "Valor agregado (log)",
-       y = "Valor")
-
-
-Eco_iheh %>%
-  filter(Año==2018) %>% 
-  tidyr::pivot_longer(cols = c(min, median, mean,max , sd),
-                      names_to = "variable",
-                      values_to = "valor_iheh") %>%
-  tidyr::pivot_longer(cols = c(`Actividades primarias *`, `Actividades secundarias **`,`Actividades terciarias ***` ),
-                      names_to = "Actividades",
-                      values_to = "VA_Actividades")  %>%
-  mutate(
-    variable = factor(variable,
-                      levels = c("min", "median", "mean", "max", "sd")))%>%
-  
-  ggplot(aes(x = VA_Actividades, y = valor_iheh)) +
-  geom_point(alpha = 0.6) +
-  scale_x_log10() +
-  facet_grid(Actividades ~ variable, scales = "free_y")+
-  labs(title = "Relación entre VA * actividades e indicadores IHEH para 2018",
-       x = "VA (log)",
-       y = "Valor_iheh")
-
 #### prueba con las ponderadas por areas #########
 
-
-var_plot <- "sd"
-
-Eco_iheh %>%
-  filter(Año == 2018) %>%
-  ggplot(aes(x = VATarea, y = .data[[var_plot]])) +
-  geom_point() +
-  #scale_x_sqrt()+
-  scale_x_log10() +
-  labs(title = var_plot)
-
-
-
-Eco_iheh %>%
-  filter(Año == 2018) %>%                                  # filtra el año
-  tidyr::pivot_longer(cols = c(min, max, sd, median, mean),        # pasa a formato largo
-                      names_to  = "variable",
-                      values_to = "valor") %>%
-  ggplot(aes(x = VATarea, y = valor)) +
-  geom_point(alpha = 0.6) +
-  scale_x_log10() +
-  facet_wrap(~variable, scales = "free_y") +
-  labs(title = "Relación entre VA e indicadores IHEH (2018)",
-       x = "Valor agregado (log)",
-       y = "Valor")
-
-
-
 Eco_iheh %>%
   tidyr::pivot_longer(cols = c(min, median, mean,max , sd),
                       names_to = "variable",
@@ -233,39 +162,6 @@ Eco_iheh %>%
   labs(title = "Relación entre VA e indicadores IHEH por año",
        x = "Valor agregado (log)",
        y = "Valor")
-
-
-Eco_iheh %>%
-  tidyr::pivot_longer(cols = c(min, median, mean,max , sd),
-                      names_to = "variable",
-                      values_to = "valor") %>%
-  ggplot(aes(x = VA3area, y = valor)) +
-  geom_point(alpha = 0.6) +
-  scale_x_log10() +
-  facet_grid(Año ~ variable, scales = "free_y") +
-  labs(title = "Relación entre VA e indicadores IHEH por año",
-       x = "Valor agregado (log)",
-       y = "Valor")
-
-
-Eco_iheh %>%
-  filter(Año==2018) %>% 
-  tidyr::pivot_longer(cols = c(min, median, mean,max , sd),
-                      names_to = "variable",
-                      values_to = "valor_iheh") %>%
-  tidyr::pivot_longer(cols = c(VA1area, VA2area,VA3area,VATarea ),
-                      names_to = "Actividades",
-                      values_to = "VA_Actividades") %>%
-  mutate(
-    variable = factor(variable,
-                      levels = c("min", "median", "mean", "max", "sd")))%>%
-  ggplot(aes(x = VA_Actividades, y = valor_iheh)) +
-  geom_point(alpha = 0.6) +
-  scale_x_log10() +
-  facet_grid(Actividades ~ variable, scales = "free_y")+
-  labs(title = "Relación entre VA * actividades e indicadores IHEH para 2018",
-       x = "VA (log)",
-       y = "Valor_iheh")
 
 
 ### Cálculo correlaciones####
@@ -274,6 +170,7 @@ Eco_iheh %>%
 
 # Preparar datos
 df_plot <- Eco_iheh %>%
+  select(- "Actividades primarias *", -"Actividades secundarias **", -"Actividades terciarias ***", -"VA") %>% 
   pivot_longer(
     cols = c(min, median, mean, max, sd),
     names_to = "variable",
@@ -306,15 +203,17 @@ df_cor <- df_plot %>%
   )
 
 
+df_cor_text <- df_cor %>% filter(Año==2018)
+
 # Gráfica con asterisco de significancia
 df_plot %>% 
-   filter(Año==2018) %>% 
-ggplot( aes(x = VA_Actividades+0.000001, y = valor_iheh)) +
+  filter(Año==2018) %>% 
+  ggplot( aes(x = VA_Actividades+0.000001, y = valor_iheh)) +
   geom_point(alpha = 0.4) +
   scale_x_log10() +
   facet_grid(Actividades ~ variable, scales = "free_y") +
   geom_text(
-    data = df_cor,
+    data = df_cor_text,
     aes(
       x = Inf, y = Inf,
       label = paste0("r=", round(r_pearson, 1),sig_p,
@@ -332,7 +231,7 @@ ggplot( aes(x = VA_Actividades+0.000001, y = valor_iheh)) +
   )
 
 
- #### corplot #######
+#### corplot #######
 
 cor_mat <-df_cor%>% 
   
@@ -361,7 +260,7 @@ corrplot(cor_mat,
 # Calcular correlaciones + significancia + altura ####
 
 df_corA <- df_plot %>%
-
+  
   filter(variable %in% c("sd", "mean")) %>% 
   
   group_by(Actividades, variable, Año, Piso_termico) %>%
@@ -430,6 +329,52 @@ df_plot %>%
   )
 
 
+## pisos y tipos de actividades
+
+df_plot %>% 
+  filter(Año==2018 & variable %in% c("mean")) %>% 
+  ggplot(aes(x = VA_Actividades + 0.000001, y = valor_iheh)) +
+  
+  geom_point(alpha = 0.4) +
+  scale_x_log10() +
+  
+  facet_grid( Piso_termico ~ Actividades
+    #vars(Piso_termico,                  , Actividades)
+    ) +
+  
+  # ✅ Ajuste lineal
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  # ✅ Fórmula del modelo en la gráfica
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")),
+    parse = TRUE,
+    label.x = "right",
+    label.y = "bottom",
+    size = 3
+  ) +
+  
+  # Correlaciones que ya tienes
+  geom_text(
+    data = df_cor_text,
+    aes(
+      x = Inf, y = Inf,
+      label = paste0(
+        "r=", round(r_pearson, 1), sig_p
+      )
+    ),
+    hjust = 1.1, vjust = 1.1,
+    size = 3,
+    inherit.aes = FALSE
+  ) +
+  
+  labs(
+    title = "Relación entre VA (log) e IHEH con correlaciones y fórmula lineal",
+    x = "VA (log10)",
+    y = "Valor IHEH"
+  )
+
 
 ## ECO_iheh_rcl #######
 
@@ -439,6 +384,7 @@ df_plot %>%
 
 # Preparar datos
 df_plot_rcl <- Eco_iheh_rcl %>%
+  select(- "Actividades primarias *", -"Actividades secundarias **", -"Actividades terciarias ***", -"VA") %>% 
   pivot_longer(
     cols = c(VA1area, VA2area, VA3area, VATarea),
     names_to = "Actividades",
@@ -447,7 +393,7 @@ df_plot_rcl <- Eco_iheh_rcl %>%
   mutate(
     Categorías = factor(Categorías,
                         levels = c("Natural", "Bajo", "Medio", "Alto", "Muy Alto")),
-      
+    
     log_VA = log10(VA_Actividades+0.000001)
   )
 
@@ -467,17 +413,17 @@ df_cor_rcl <- df_plot_rcl %>%
     sig_sp = ifelse(p_spearman < 0.05, "*", "")
   )
 
-
+df_cor_rcl_text <- df_cor_rcl %>% filter(Año==2018)
 
 df_plot_rcl %>%
   filter(Año==2018) %>% 
- 
+  
   ggplot(aes(x = VA_Actividades+0.000001, y = Porcentaje)) +
   geom_point(alpha = 0.3) +
   scale_x_log10() +
   facet_grid(Actividades ~ Categorías)+
   geom_text(
-    data = df_cor_rcl,
+    data = df_cor_rcl_text,
     aes(
       x = Inf, y = Inf,
       label = paste0("r=", round(r_pearson, 1),sig_p,
@@ -516,7 +462,7 @@ corrplot(cor_mat_rcl,
          method = "circle",
          #col=col,
          col=brewer.pal(n = 8, name = "RdYlBu"),
-
+         
          col.lim=c(-0.9,0.9),
          is.corr=F,
          tl.col = "black",
@@ -585,7 +531,7 @@ df_plot_rcl %>%
   filter(Año==2018 & Actividades == "VATarea") %>% 
   ggplot(aes(x = VA_Actividades+0.000001 , y = Porcentaje)) +
   
-  geom_point(alpha = 0.4) +
+  geom_point(alpha = 0.1) +
   
   scale_x_log10() +
   facet_grid(Piso_termico ~ Categorías) +
@@ -620,34 +566,111 @@ df_plot_rcl %>%
   labs(
     title = "Relación entre VA (log) e IHEH con correlaciones y fórmula lineal",
     x = "VA (log10)",
-    y = "Valor IHEH"
+    y = "Porcentaje de área"
+  )
+
+## entrar en detalle en piso calido ####
+
+df_plot_rcl_calido <- df_plot_rcl %>% 
+  filter(MpAltitud<=1000 & Actividades =="VATarea") %>% 
+  mutate(
+    rango_altura = cut(
+      MpAltitud,
+      breaks = seq(0, 1000, by = 250),
+      include.lowest = TRUE,
+      right = FALSE,
+      labels = c("0-250", "250-500", "500-750", "750-1000")
+    )
   )
 
 
+df_cor_rclAC <- df_plot_rcl_calido %>%
+  group_by(Actividades, Categorías, Año, rango_altura) %>%
+  summarise(
+    
+    # número de pares válidos
+    n = sum(complete.cases(log_VA, Porcentaje)),
+    
+    # -------- Pearson --------
+    r_pearson = ifelse(
+      n >= 3,
+      cor(log_VA, Porcentaje, method = "pearson", use = "complete.obs"),
+      NA_real_
+    ),
+    
+    p_pearson = ifelse(
+      n >= 3,
+      cor.test(log_VA, Porcentaje, method = "pearson")$p.value,
+      NA_real_
+    ),
+    
+    # -------- Spearman --------
+    r_spearman = ifelse(
+      n >= 3,
+      cor(log_VA, Porcentaje, method = "spearman", use = "complete.obs"),
+      NA_real_
+    ),
+    
+    p_spearman = ifelse(
+      n >= 3,
+      cor.test(log_VA, Porcentaje, method = "spearman")$p.value,
+      NA_real_
+    ),
+    
+    .groups = "drop"
+  ) %>%
+  mutate(
+    sig_p  = ifelse(!is.na(p_pearson)  & p_pearson  < 0.05, "*", ""),
+    sig_sp = ifelse(!is.na(p_spearman) & p_spearman < 0.05, "*", "")
+  )
 
-df_plot_rcl %>%
-  filter(Año==2018) %>% 
-  ggplot(aes(x = VA_Actividades+0.000001, y = Porcentaje)) +
-  geom_point(alpha = 0.3) +
+df_cor_rclAC_text <- df_cor_rclAC %>% 
+  filter(Año==2018 & Actividades == "VATarea")
+
+
+
+df_plot_rcl_calido %>% 
+  filter(Año==2018 & Actividades == "VATarea") %>% 
+  ggplot(aes(x = VA_Actividades+0.000001 , y = Porcentaje)) +
+  
+  geom_point(alpha = 0.1) +
+  
   scale_x_log10() +
-  facet_grid(Actividades ~ Categorías)+
+  facet_grid(rango_altura ~ Categorías) +
+  
+  # ✅ Ajuste lineal
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  # ✅ Fórmula del modelo en la gráfica
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")),
+    parse = TRUE,
+    label.x = "right",
+    label.y = "bottom",
+    size = 3
+  ) +
+  
+  # Correlaciones que ya tienes
   geom_text(
-    data = df_cor_rcl,
+    data = df_cor_rclAC_text,
     aes(
       x = Inf, y = Inf,
-      label = paste0("r=", round(r_pearson, 1),sig_p,
-                     "\nρ=", round(r_spearman, 1),
-                     sig_sp)
+      label = paste0(
+        "r=", round(r_pearson, 1), sig_p
+      )
     ),
     hjust = 1.1, vjust = 1.1,
     size = 3,
     inherit.aes = FALSE
   ) +
+  
   labs(
-    title = "Relación entre VA (log) e IHEH con correlaciones y significancia",
+    title = "Relación entre VA (log) e IHEH con correlaciones y fórmula lineal",
     x = "VA (log10)",
     y = "Porcentaje de área"
   )
+
 
 
 #****************************************************************************
@@ -666,7 +689,7 @@ df_plot_rcl %>%
 
 
 tabla_cambios <- Eco_iheh %>% 
-  select(MpCodigo, MpNombre, MpCategor, MpAltitud, mean, VATarea, VA1area, VA2area, VA3area, Año) %>% 
+  select(Departamento,MpCodigo, MpNombre, MpCategor, MpAltitud, mean, VATarea, VA1area, VA2area, VA3area, Año, Piso_termico) %>% 
   pivot_wider(
     names_from = Año,
     values_from = c(mean, VATarea, VA1area, VA2area, VA3area),
@@ -691,155 +714,120 @@ tabla_cambios <- Eco_iheh %>%
     # Porcentaje de cambio en VATarea
     Pvt_18_20 = ifelse(VATarea_2018 == 0, NA, (Dvt_18_20 / VATarea_2018) * 100),
     Pvt_20_22 = ifelse(VATarea_2020 == 0, NA, (Dvt_20_22 / VATarea_2020) * 100),
-    Pvt_18_22 = ifelse(VATarea_2018 == 0, NA, (Dvt_20_22 / VATarea_2018) * 100)
-  ) %>% 
-  mutate(
-    Piso_termico = case_when(
-      MpAltitud < 1000 ~ "Cálido",
-      MpAltitud >= 1000 & MpAltitud < 2000 ~ "Templado",
-      MpAltitud >= 2000 & MpAltitud < 3000 ~ "Frío",
-      MpAltitud >= 3000 & MpAltitud < 4000 ~ "Páramo",
-      MpAltitud >= 4000 ~ "Nival",
-      TRUE ~ NA_character_
-    )
-  )
-
-
-library(dplyr)
-
-promedios <- tabla_cambios %>% 
-  summarise(across(where(is.numeric), mean, na.rm = TRUE))
-
-promedios
-
-
-
-
-
-tabla_cambios %>%
-  #filter(Año == 2018) %>%
-  ggplot(aes(x = Dvt_18_22 , y =  Dmean_18_22)) +
-  geom_point() +
-  #facet_wrap(vars(Piso_termico))+
-  #scale_x_sqrt()+
-  #scale_x_log10() +
-  labs(title = var_plot)
-
-
-tabla_cambios %>%
-  #filter(MpCategor == 1) %>%
-  ggplot(aes(x = Pvt_18_22, y =  Pmean_18_22)) +
-  geom_point() +
-  facet_wrap(vars(Piso_termico, MpCategor))+
-  #scale_x_sqrt()+
-  scale_x_log10() +
-  labs(title = var_plot)
-
-tabla_cambios %>%
-  #filter(MpCategor == 1) %>%
-  ggplot() +
-  geom_boxplot(aes(x=Categorías, y= PConteo_20_22)) +
-  # facet_wrap(vars(Categorías))+
-  #scale_x_sqrt()+
-  labs(title = var_plot)
-
-
-
-tc_filter <- tabla_cambios %>%
-  mutate(id = row_number()) %>% 
-  filter(Pmean_18_22 <= 0) 
-
-# 153 municipios mantienen una huella promedio constante o disminuye a pesar de haber un incrementado el valor agregado
-# Total de municipios 1119
-
-tc_filter%>%
-  ggplot( ) +
-  geom_point(aes(x=id,y =  Pmean_18_22), col="blue") +
-  geom_point(aes(x=id,y =  Pvt_18_22), col="red") +
-  #geom_point(col="blue") +
-  #facet_wrap(vars(Piso_termico, MpCategor))+
-  #scale_x_sqrt()+
-  #scale_x_log10() +
-  labs(title = var_plot)
-
-
-
-
-# intento con reclass natural y muy alto primero
-
-# Preparar datos
-
-tabla_cambios_rcl <- Eco_iheh_rcl %>% 
-  select(MpCodigo,MpNombre,MpCategor,MpAltitud, Categorías, Conteo, VATarea, Año) %>% 
-  # Pasar a formato ancho y calcular cambios
-  pivot_wider(
-    names_from = Año,
-    values_from = c(Conteo,VATarea),
-    names_sep = "_"
-  )%>%
-  mutate(
-    # Cambios absolutos en Conteo
-    DConteo_18_20 = Conteo_2020 - Conteo_2018,
-    DConteo_20_22 = Conteo_2022 - Conteo_2020,
-    DConteo_18_22 = Conteo_2022 - Conteo_2018,
+    Pvt_18_22 = ifelse(VATarea_2018 == 0, NA, (Dvt_20_22 / VATarea_2018) * 100),
     
-    # Porcentaje de cambio en Conteo
-    PConteo_18_20 = ifelse(Conteo_2018 == 0, NA, (DConteo_18_20 / Conteo_2018) * 100),
-    PConteo_20_22 = ifelse(Conteo_2020 == 0, NA, (DConteo_20_22 / Conteo_2020) * 100),
-    PConteo_18_22 = ifelse(Conteo_2018 == 0, NA, (DConteo_20_22 / Conteo_2018) * 100),
+    # relacion de cambio
     
-    # Cambios absolutos en VATarea
-    Dvt_18_20 = VATarea_2020 - VATarea_2018,
-    Dvt_20_22 = VATarea_2022 - VATarea_2020,
-    Dvt_18_22 = VATarea_2022 - VATarea_2018,
+        D = ifelse(Pvt_18_22 == 0, NA, Pmean_18_22 / Pvt_18_22),
+        
+        categoria_cambio = case_when(
+          
+          # 🌟 Ideal
+          Pvt_18_22 > 0 & Pmean_18_22 < 0 ~ "Desacoplamiento absoluto (mejor)",
+          
+          # Crecimiento con presión
+          #Pvt_18_22 > 0 & Pmean_18_22 > 0 & D < 1 ~ "Desacoplamiento relativo (maso)",
+          #Pvt_18_22 > 0 & Pmean_18_22 > 0 & D >= 1 ~ "Crecimiento con alta presión (medio  mal)" ,
+          Pvt_18_22 > 0 & Pmean_18_22 > 0  ~ "Desacoplamiento relativo (maso)",
+          
+          
+          # Contracción general
+          Pvt_18_22 < 0 & Pmean_18_22 < 0 ~ "Declive económico y mejora ambiental",
+          
+          # 🚨 Peor escenario
+          Pvt_18_22 < 0 & Pmean_18_22 > 0 ~ "Degradación sin desarrollo (peor)",
+          
+          TRUE ~ "Sin clasificación"
+        )
+      )
+
+revisar <- tabla_cambios %>% 
+  filter(categoria_cambio =="Desacoplamiento absoluto (mejor)")
+save(revisar,file= file.path(dir_Resultados,"mun_desacoplados.csv"))
+
+save(tabla_cambios, file= file.path(dir_Resultados,"tabla_cambios.RData"))
+table(tabla_cambios$categoria_cambio)
+
+tabla_cambios %>% 
+  count( categoria_cambio,Piso_termico) %>% 
+
+  
+ggplot(
+       aes(y = categoria_cambio,
+           x = n,
+           fill = Piso_termico)) +
+  geom_col(position = "fill", width = 0.7) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    y = "",
+    x = "Proporción",
+    fill = "Piso térmico"
+  ) +
+  theme_bw(base_size = 13)
+  
+  
     
-    # Porcentaje de cambio en VATarea
-    Pvt_18_20 = ifelse(VATarea_2018 == 0, NA, (Dvt_18_20 / VATarea_2018) * 100),
-    Pvt_20_22 = ifelse(VATarea_2020 == 0, NA, (Dvt_20_22 / VATarea_2020) * 100),
-    Pvt_18_22 = ifelse(VATarea_2018 == 0, NA, (Dvt_20_22 / VATarea_2018) * 100)
-  ) %>% 
-  mutate(
-    Piso_termico = case_when(
-      MpAltitud < 1000 ~ "Cálido",
-      MpAltitud >= 1000 & MpAltitud < 2000 ~ "Templado",
-      MpAltitud >= 2000 & MpAltitud < 3000 ~ "Frío",
-      MpAltitud >= 3000 & MpAltitud < 4000 ~ "Páramo",
-      MpAltitud >= 4000 ~ "Nival",
-      TRUE ~ NA_character_
-    )
-  )
+    
+ggplot(tabla_cambios) +
+  geom_bar(aes(y=categoria_cambio))
+  
+
+plot(log(Pmean_18_22) ~ log(Pvt_18_22), data = tabla_cambios)
+
+
+
+# visualizar 
+
+# Municipio
+ruta_archivo <- file.path(dir_Datos_Or,                     "MUNICIPIOS/Carto100000_Colombia_DI_2022_gpkg/Carto100000_Colombia_DI_2022.gpkg")
+st_layers(ruta_archivo)
+
+# cargar y proyectar en el sistema de referencia definido
+capas_st <- st_read(ruta_archivo,layer="Limite_Municipal_Poligono") 
+dpto <- st_read(file.path(dir_Datos_Or ,"MGN2023_DPTO_POLITICO/MGN_ADM_DPTO_POLITICO.shp")) %>% st_transform(st_crs(capas_st))
+
+capas_descople <- capas_st %>% 
+  filter(MpNombre %in% revisar$MpNombre)
+
+
+plot(st_geometry(dpto))
+
+plot(
+  capas_descople,
+  add = TRUE,
+  col = rgb(0.5, 0.7, 1, 0.4),   # azul claro con transparencia
+  border = "blue",              # borde azul
+  lwd = 0.7                     # línea más delgada
+)
+plot(st_geometry(dpto), add=T, col=NA )
+
+
+#### grafica todas las categorias
+
+
+tc_x_unir <- tabla_cambios %>% 
+  select(MpCodigo,MpNombre,categoria_cambio)
+
+capas_st <- merge(capas_st, tc_x_unir)
 
 
 
 
-tabla_cambios_rcl %>%
-  #filter(Categorías=="Natural") %>%
-  ggplot(aes(x = Dvt_18_22+200 , y =  DConteo_18_22)) +
-  geom_point() +
-  facet_wrap(vars(Categorías))+
-  #scale_x_sqrt()+
-  #scale_y_log10() +
-  scale_x_log10() +
-  geom_vline(xintercept = 0, linetype = "dashed") +
-  labs(title = var_plot)
+capas_st$categoria_cambio <- factor(capas_st$categoria_cambio, levels=c(  "Desacoplamiento absoluto (mejor)" ,
+                                                                             "Desacoplamiento relativo (maso)",
+                                                                             "Degradación sin desarrollo (peor)" ,
+                                                                             "Declive económico y mejora ambiental"))
 
+ggplot() +
+  geom_sf(data = capas_st, aes(fill = categoria_cambio), color = "blue") +
+  geom_sf(data = dpto, fill = NA, color = "black", linewidth = 0.1)+
+  scale_fill_manual(values = c(
+    "Desacoplamiento absoluto (mejor)" = "#1a9641",
+    "Desacoplamiento relativo (maso)" = "#fdae61",
+    "Degradación sin desarrollo (peor)" = "#d7191c",
+    "Declive económico y mejora ambiental" = "#2c7bb6"
 
-tabla_cambios_rcl %>%
-  #filter(MpCategor == 1) %>%
-  ggplot(aes(x = Pvt_18_22+200, y =  PConteo_18_22+200)) +
-  geom_point() +
-  facet_wrap(vars(Categorías))+
-  #scale_x_sqrt()+
-  scale_y_log10() +
-  scale_x_log10() +
-  labs(title = var_plot)
+  )) +
+  theme_minimal()
 
-
-tabla_cambios_rcl %>%
-  #filter(MpCategor == 1) %>%
-  ggplot() +
-  geom_boxplot(aes(x=Categorías, y= PConteo_20_22)) +
-  #facet_wrap(vars(Categorías))+
-  #scale_x_sqrt()+
-  labs(title = var_plot)
 
